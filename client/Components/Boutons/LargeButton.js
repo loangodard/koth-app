@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, Dimensions} from 'react-native'
 
 import { LinearGradient } from 'expo-linear-gradient';
-import colors from '../Constants/colors'
+import colors from '../../Constants/colors'
 const width = Dimensions.get('window').width
 
 
@@ -27,7 +27,7 @@ export default LargeButton
 const styles = StyleSheet.create({
     playContainer:{
         width:width*0.7,
-        height:100,
+        minHeight:80,
         shadowColor: colors.pink,
         shadowOffset: {
             width: 0,
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     },
     play:{
         color:'white',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        textAlign:'center'
     }
 })

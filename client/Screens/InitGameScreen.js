@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View, Switch } from 'react-native'
+import { StyleSheet, Text, View, Switch, StatusBar } from 'react-native'
 import Slider from '@react-native-community/slider';
 
-import LargeButton from '../Components/LargeButton'
+import LargeButton from '../Components/Boutons/LargeButton'
 import colors from '../Constants/colors'
 
 const InitGameScreen = (props) => {

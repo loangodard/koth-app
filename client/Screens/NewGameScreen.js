@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Dimensions } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import colors from '../Constants/colors'
 
-import LargeButton from '../Components/LargeButton'
+import LargeButton from '../Components/Boutons/LargeButton'
 
 const width = Dimensions.get('window').width
 
@@ -11,10 +11,13 @@ const NewGameScreen = (props) => {
     return (
         <View style={styles.container}>
             <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
-                <LargeButton fontSize={35} style={styles.button} onPress={()=> props.navigation.navigate('Creer')}>Créer</LargeButton>
+                <LargeButton fontSize={28} style={styles.button} onPress={()=> props.navigation.navigate('Creer')}>Créer un match</LargeButton>
             </View>
             <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
-                <LargeButton fontSize={35} style={styles.button}>Rejoindre</LargeButton>
+                <LargeButton fontSize={28} style={styles.button}>Rejoindre un match</LargeButton>
+            </View>
+            <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
+                <LargeButton fontSize={28} style={styles.button} onPress={()=> props.navigation.navigate('Creer')}>Prévoir un match</LargeButton>
             </View>
         </View>
     )
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background
     },
     button:{
-        width:width*.7,
+        width:width*.8,
         marginVertical:10
     }
 })
