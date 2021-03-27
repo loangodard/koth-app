@@ -1,4 +1,5 @@
 const User = require('../Models/User')
+const Match = require('../Models/Match')
 const bcrypt = require('bcryptjs');
 const token = require('../Utils/token')
 
@@ -89,4 +90,36 @@ exports.postLogin = (req, res) => {
             ...err
         })
     });
+}
+
+exports.getUser = (req,res) => {
+    User.findById(req.params.id).then(user=>{
+        if(!user){
+            return res.status(500).json({
+                error : "pas d'utilisateur"
+            })
+        }
+        return res.status(200).json({
+            user: {
+                _id:user._id,
+                elos:user.elos,
+                pseudo:user.pseudo
+            }
+        })
+    }).catch(err=>{
+        return res.status(500).json({
+            error : err
+        })
+    })
+}
+
+exports.getMatch = (req,res) => {
+    const lobby = req.params.lobby;
+    Match.findOne({lobby:lobby}).populate('team1','pseudo elos').populate('team2','pseudo elos').then(match => {
+        return res.status(200).json(match)
+    }).catch(err=>{
+        return res.status(500).json({
+            error : err
+        })
+    })
 }

@@ -35,7 +35,7 @@ const LoginScreen = (props) => {
                 password:pwd
             }
         }).then(response=>{
-            props.login(response.data.data._id)
+            props.login(response.data.data._id,response.data.data.login_token)
             storeUserData(response.data.data.login_token,response.data.data._id)
             setIsLoading(false)
         }).catch(err=>{
@@ -53,6 +53,7 @@ const LoginScreen = (props) => {
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                 <View style={{flex:1,width:width,justifyContent:'center',alignItems:'center',paddingBottom:20}}>
                     <Image source={require('../../assets/logo.png')} style={{width:width/2,height:width/2}}/>
+                    <Text style={styles.KOTH}>KOTH</Text>
                     <View>
                         <Text style={{color:'red',marginVertical:5}}>{errorMessage}</Text>
                     </View>
@@ -116,5 +117,10 @@ const styles = StyleSheet.create({
     goodInput:{
         borderColor:'green',
         borderWidth:2
+    },
+    KOTH:{
+        color:'white',
+        fontSize:85,
+        fontFamily:'LaskiSansStencil-Black'
     }
 })

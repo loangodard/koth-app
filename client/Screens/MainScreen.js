@@ -1,8 +1,11 @@
 import React, {useEffect,useState,useRef} from 'react'
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image,StatusBar } from 'react-native'
 
+import {useSelector} from 'react-redux'
 import MapView, {Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
+import {connect} from 'react-redux'
+import {logout} from '../store/actions/auth'
 
 import { Entypo,AntDesign  } from '@expo/vector-icons';
 import colors from '../Constants/colors'
@@ -42,6 +45,8 @@ const markers = [
 ]
 
 const MainScreen = (props) => {
+    const state = useSelector(state => state)
+    console.log(state)
     let mapView
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -87,8 +92,8 @@ const MainScreen = (props) => {
         <View style={styles.container}>
         <StatusBar barStyle="dark-content"/>
 
-            {/* MAP */}
             <View style={styles.mapContainer}>
+                {/* MAP */}
                 <MapView style={styles.mapStyle}
                     ref={ref => (mapView = ref)} //mapView fait référence à l'instance de MapView. Utile pour appeler les méthode de la classe MapView
                     initialRegion={location}
@@ -103,13 +108,30 @@ const MainScreen = (props) => {
                         )
                     })}
                 </MapView>
+
+                <TouchableOpacity style={styles.eloContainer} activeOpacity={0.85}>
+                    <View style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+                        <Text style={styles.elo}>1500 </Text><Entypo name="trophy" size={25} color={colors.gold} />
+                    </View>
+                    <View style={{
+                        borderWidth:0.5,
+                        height:"90%",
+                        marginHorizontal:10,
+                        borderColor:'grey'
+                    }}></View>
+                    <View style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+                        <Text style={styles.elo}>200 </Text><AntDesign name="star" size={25} color={colors.purple} />
+                    </View>
+                </TouchableOpacity>
                 
                 <View style={styles.buttonBar}>
                     <View style={styles.buttonDivisions}>
-
+                        <TouchableOpacity onPress={()=>props.logout()}>
+                            <Text>LOGOUT</Text>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.buttonDivisions}>
-                        <PlayButton onPress={()=>props.navigation.navigate('Nouvelle Partie')}/>
+                        <PlayButton onPress={()=>props.navigation.navigate('Menu')}/>
                     </View>
                     <View style={styles.buttonDivisions}>
                         <ZoomToMe onPress={handleLocationPressed}/>
@@ -121,7 +143,10 @@ const MainScreen = (props) => {
     )
 }
 
-export default MainScreen
+export default connect(
+    null,
+    {logout}
+  )(MainScreen);
 
 const styles = StyleSheet.create({
     container:{
@@ -191,17 +216,3 @@ const styles = StyleSheet.create({
     }
 })
 
-// <TouchableOpacity style={styles.eloContainer} activeOpacity={0.85}>
-//                 <View style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
-//                     <Text style={styles.elo}>1500 </Text><Entypo name="trophy" size={25} color={colors.gold} />
-//                 </View>
-//                     <View style={{
-//                         borderWidth:0.5,
-//                         height:"90%",
-//                         marginHorizontal:10,
-//                         borderColor:'grey'
-//                     }}></View>
-//                     <View style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
-//                         <Text style={styles.elo}>200 </Text><AntDesign name="star" size={25} color={colors.purple} />
-//                     </View>
-// </TouchableOpacity>

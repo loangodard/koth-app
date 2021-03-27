@@ -41,9 +41,13 @@ const navOptions = {
 const Stack = createStackNavigator()
 
 import MainScreen from '../Screens/MainScreen'
-import NewGameScreen from '../Screens/NewGameScreen'
+import MenuScreen from '../Screens/MenuScreen'
 import InitGameScreen from '../Screens/InitGameScreen'
 import LobbyScreen from '../Screens/LobbyScreen'
+import JoinGame from '../Screens/JoinGame'
+import GameScreen from '../Screens/GameScreen'
+import EndGameScreen from '../Screens/EndGameScreen'
+
 
 const navigatorOptions ={
           headerStyle: {
@@ -70,9 +74,12 @@ const MainNavigator = () => {
     return(
         <Stack.Navigator >
             <Stack.Screen name="Home" component={MainScreen} options={{headerShown: false}}/>
-            <Stack.Screen name="Nouvelle Partie" component={NewGameScreen} options={navigatorOptions}/>
+            <Stack.Screen name="Menu" component={MenuScreen} options={navigatorOptions}/>
             <Stack.Screen name="Creer" component={InitGameScreen} options={{...navigatorOptions,...{title:"Nouvelle Partie"}}}/>
+            <Stack.Screen name='Rejoindre' component={JoinGame} options={navigatorOptions}/>
             <Stack.Screen name="Lobby" component={LobbyScreen} options={navigatorOptions}/>
+            <Stack.Screen name="Game" component={GameScreen} options={{...navigatorOptions,...{gestureEnabled: false,headerLeft:null,title:"Premier à 21 points"}}} />
+            <Stack.Screen name="End-Game" component={EndGameScreen} options={{...navigatorOptions,...{gestureEnabled: false,headerLeft:null,title:"Fin de partie"}}} />
         </Stack.Navigator>
     )
   }else if(!isAuth && did_try_al){

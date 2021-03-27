@@ -1,5 +1,5 @@
 export default {
-    background:"#160b61",
+    background:"black",
     gold:"#daa520",
     purple:"#a0659a",
     pink:"#ca54d8"

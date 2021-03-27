@@ -1,59 +1,54 @@
 import React, {useState} from 'react'
 import { StyleSheet, Text, View, Switch, StatusBar } from 'react-native'
 import Slider from '@react-native-community/slider';
+import {useSelector} from 'react-redux'
 
 import LargeButton from '../Components/Boutons/LargeButton'
 import colors from '../Constants/colors'
+import shadow from '../Constants/shadow'
+
+const makeid = (length) => {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
 
 const InitGameScreen = (props) => {
     const [nombreJoueurs, setNombreJoueurs] = useState(6)
     const [ranked, setRanked] = useState(true)
     const [carte, setCarte] = useState(true)
+    const userId = useSelector(state => state.userId)
+
 
     return (
         <View style={styles.container}>
             <View style={{flex:1,width:'100%',justifyContent:'center',alignItems:'center'}}>
-            <View style={{flex:1,justifyContent:'center',alignItems:'center',width:'100%'}}>
-                <Text style={{color:'white',fontSize:70,fontWeight:'700',marginBottom:10}}>{nombreJoueurs/2} vs {nombreJoueurs/2}</Text>
-            </View>
-            <View style={{flex:1,justifyContent:'center',alignItems:'center',width:'100%'}}>
-                <Slider
-                        style={{width: "80%", height: 40}}
-                        minimumValue={2}
-                        maximumValue={10}
-                        step={2}
-                        minimumTrackTintColor="#FFFFFF"
-                        maximumTrackTintColor="#000000"
-                        onValueChange={(v)=>setNombreJoueurs(v)}
-                        value={6}
-                        tapToSeek={false}
-                />
-            </View>
-
-
-                <View style={{flexDirection:'row'}}>
-                    <View style={{justifyContent:'center',alignItems:'center',marginVertical:10,width:'50%'}}>
-                        <Text style={{color:"white",fontSize:18,marginHorizontal:10,textAlign:'center',marginBottom:10}}>Match classé :</Text>
-                        <Switch rackColor={{ false: "#767577", true: "#81b0ff" }}
-                                ios_backgroundColor="#3e3e3e"
-                                onValueChange={(v) => setRanked(v)}
-                                value={ranked}
-                        />
-                    </View>
-
-                    <View style={{justifyContent:'center',alignItems:'center',marginVertical:10,width:'50%'}}>
-                        <Text style={{color:"white",fontSize:18,marginHorizontal:10,textAlign:'center',marginBottom:10}}>Match sur la carte :</Text>
-                        <Switch rackColor={{ false: "#767577", true: "#81b0ff" }}
-                                ios_backgroundColor="#3e3e3e"
-                                onValueChange={(v) => setCarte(v)}
-                                value={carte}
-                        />
-                    </View>
+                <View style={{...styles.matchCard,...shadow}}>
+                    <Text style={{color:colors.background,fontSize:70,fontWeight:'700'}}>{nombreJoueurs/2} vs {nombreJoueurs/2}</Text>
                 </View>
+                <View style={{flex:1,justifyContent:'center',alignItems:'center',width:'100%'}}>
+                    <Slider
+                            style={{width: "80%", height: 40}}
+                            minimumValue={2}
+                            maximumValue={10}
+                            step={2}
+                            minimumTrackTintColor="#FFFFFF"
+                            maximumTrackTintColor="#000000"
+                            onValueChange={(v)=>setNombreJoueurs(v)}
+                            value={6}
+                            tapToSeek={false}
+                    />
+                </View>
+
             </View>
 
-            <View style={{flex:1, width:'100%',justifyContent:'center',alignItems:'center'}}>
-                <LargeButton fontSize={50} onPress={()=> props.navigation.navigate('Lobby')}>GO</LargeButton>
+            <View style={{width:'100%',justifyContent:'center',alignItems:'center',marginBottom:30}}>
+                <LargeButton fontSize={50} onPress={()=> props.navigation.navigate('Lobby',{lobbyId : makeid(5),userId : userId,nombreJoueurs:nombreJoueurs})}>GO</LargeButton>
             </View>
         </View>
     )
@@ -68,4 +63,12 @@ const styles = StyleSheet.create({
         alignItems:'center',
         backgroundColor: colors.background
     },
+    matchCard:{
+        flex:1,
+        justifyContent:'center',
+        alignItems:'center',
+        width:'80%',
+        backgroundColor:"white",
+        borderRadius:20
+    }
 })

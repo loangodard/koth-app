@@ -8,7 +8,7 @@ const width = Dimensions.get('window').width
 const Joueur = (props) => {
     return (
         <View style={styles.container}>
-            <Text style={styles.username}>@{props.username}</Text>
+            <Text style={styles.username}>{props.username}</Text>
             <View style={{flexDirection:'row',marginTop:3,alignItems:'center'}}>
                 <Text style={styles.elo}>{props.elo} </Text><Entypo name="trophy" size={23} color={colors.gold} />
             </View>
@@ -20,12 +20,13 @@ export default Joueur
 
 const styles = StyleSheet.create({
     container: {
-        width:width*0.45,
+        width:width*0.46,
         borderWidth:1,
         padding:5,
         borderColor:'white',
         borderRadius:5,
-        marginVertical:3
+        marginVertical:3,
+        marginHorizontal:width*0.015
     },
     username:{
         color:'white',

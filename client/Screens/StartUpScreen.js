@@ -9,6 +9,7 @@ const StartUpScreen = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
+        console.log('hereeee')
       const tryLogin = async () => {
         const userData = await AsyncStorage.getItem('@userData');
         if(!userData){
