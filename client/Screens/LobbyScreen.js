@@ -14,15 +14,12 @@ import { Entypo } from '@expo/vector-icons';
 
 const width = Dimensions.get('window').width
 
-/**
- * Socket io
- */
-const socket = openSocket(url)
 
 const LobbyScreen = ({route,navigation}) => {
     const [lobbyId, setLobbyId] = useState()
     const [users, setUsers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [socket, setSocket] = useState(openSocket(url))
 
     socket.on('user_joined',(data)=>{
         setUsers(data)
@@ -46,6 +43,7 @@ const LobbyScreen = ({route,navigation}) => {
     })
 
     socket.on('match_begin',(data)=>{
+        socket.disconnect()
         navigation.navigate('Game',{users:users,room:route.params.lobbyId}) 
     })
 

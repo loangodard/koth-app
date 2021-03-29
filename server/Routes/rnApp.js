@@ -3,7 +3,7 @@ const rnAppControllers = require('../Controllers/rnApp')
 
 
 // url/
-router.get('/', ((req,res) => res.status(500).json({message:'koth api'})));
+router.get('/', rnAppControllers.getIndex);
 router.get("/match/:lobby",rnAppControllers.getMatch)
 
 router.post('/register',rnAppControllers.postRegister)

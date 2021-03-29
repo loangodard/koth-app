@@ -26,6 +26,5 @@ const matchSchema = new Schema({
     }]
 });
 
-
 const Match = mongoose.model('Match', matchSchema);
 module.exports = Match

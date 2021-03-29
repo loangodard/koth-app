@@ -23,6 +23,8 @@ const server = http.createServer(app);
  */
 const io = require('socket.io')(server);
 var rooms = [] //Liste des lobbys
+var rooms_end_game = [] //Liste des lobbys de salle de fin de partie
+
 io.on("connection",socket=>{
     socket.on('join_lobby',(data)=>{ //Lorsqu'un joueur join un lobby, on l'ajoute à sa room en fonction de l'id de la room rejoint
         console.log('lobby joined : ' + data.room +' by : ' + data.userId)
@@ -142,6 +144,85 @@ io.on("connection",socket=>{
             io.to(data.room).emit('user_ready',rooms[room_ind].users)
         }
     })
+
+    /**
+     * Gestion des votes et fin de partie
+     */
+    socket.on('join_end_game',(data)=> {
+        socket.join(data.room) //On connecte les joueurs entre eux
+        var roomInd = rooms_end_game.findIndex(e=>e.lobby == data.room)
+        if(roomInd < 0){ //Dans ce cas c'est le premier joueur à rejoindre
+            console.log('premier joueur à rejoindre le vote...')
+            rooms_end_game.push({
+                lobby:data.room,
+                votes:[
+                    {
+                        joueur : data.userId,
+                        vote:data.vote,
+                    }
+                ],
+                isTimerSet: false
+            })
+            roomInd = 0
+        } else {
+            var new_room = rooms_end_game[roomInd]
+            var new_votes = new_room.votes
+            var isTimerSet = new_room.isTimerSet
+            //Si deux joueurs ou plus ont votés, on lance un timeur de 5 minutes
+            if(new_votes.length > 0 && !isTimerSet){
+                const timer = setTimeout(()=>{
+                    //Fin de la partie, tant pis pour les autres qui n'ont pas votés
+                },(1/4)*60000)
+                isTimerSet = true
+            }
+
+            new_votes.push(
+                {
+                    joueur : data.userId,
+                    vote:data.vote
+                }
+            )
+
+            rooms_end_game[roomInd] = {
+                lobby:data.room,
+                votes:new_votes,
+                isTimerSet:isTimerSet
+            }
+        }
+        console.log(rooms_end_game)
+
+        Match.findOne({lobby:data.room}).populate('team1', 'pseudo elos').populate('team2', 'pseudo elos').then(match=>{
+            var nombreJoueurs = match.team1.length + match.team2.length
+            match.votes = votes
+            var votes = rooms_end_game[roomInd].votes
+            if(votes.length == nombreJoueurs){
+                //Fin des votes et ont calcul le winner
+                var vote1 = votes.filter(e=>e.vote == 1)
+                var vote2 = votes.filter(e=>e.vote == 2)
+                let winner
+                if(vote1.length > vote2.length){
+                    console.log("Team 1 win")
+                    winner = 1
+                    match.winner = 1
+                }else if(vote1.length < vote2.length){
+                    console.log("Team 2 win")
+                    winner = 2
+                    match.winner = 2
+                }else{
+                    console.log("Draw :(")
+                    winner = 0
+                    match.winner = 0
+                }
+
+                //On calcul le gain_perte d'elo pour chaque joueur
+                // https://ryanmadden.net/posts/Adapting-Elo
+                const gain_perte = calculateElo(winner,match.team1,match.team2,match)
+                return socket.to(data.room).emit('voted')
+            }else{
+                console.log('en attente de votes')
+            }
+        })
+    })
 })
 /**
  * --- Socket io ---
@@ -176,3 +257,85 @@ mongoose.connect(uri, { useNewUrlParser: true,useUnifiedTopology: true},()=>{
  */
 let rnAppRoutes = require("./Routes/rnApp");
 app.use('/', rnAppRoutes)
+
+
+const calculateElo = async (winner,team1,team2,match) => {
+    let gain_perte = []
+    let eloTeam1 = team1.map(e=>e.elos)
+    let eloTeam2 = team2.map(e=>e.elos)
+    const meanEloTeam1 = (eloTeam1.reduce((a, b) => a + b, 0) / eloTeam1.length) || 0;
+    const meanEloTeam2 = (eloTeam2.reduce((a, b) => a + b, 0) / eloTeam2.length) || 0;
+    if(winner == 1){
+        for(joueur of team1){
+            const user = await User.findById(joueur._id)
+            const ExpectationToWin = 1/(1+10**((meanEloTeam2-user.elos)/400));
+            console.log(user)
+            console.log('esperance de gagner : '+ExpectationToWin)
+            console.log('gain/perte:'+Math.trunc(20*(1-ExpectationToWin)))
+            gain_perte.push({
+                joueur:user._id,
+                gain_elos: Math.trunc(20*(1-ExpectationToWin)),
+                gain_coins: 10
+            })
+            user.elos_historique.push({date:new Date(),elos:user.elos + Math.trunc(20*(1-ExpectationToWin))})
+            user.elos += Math.trunc(20*(1-ExpectationToWin))
+            user.save()
+            console.log('dans la boucle team1')
+            console.log(gain_perte)
+        }
+
+        for(joueur of team2){
+            const user = await User.findById(joueur._id)
+            const ExpectationToWin = 1/(1+10**((meanEloTeam1-user.elos)/400));
+            console.log(user)
+            console.log('esperance de gagner : '+ExpectationToWin)
+            console.log('gain/perte:'+Math.trunc(20*(0-ExpectationToWin)) )
+            gain_perte.push({
+                joueur:user._id,
+                gain_elos: Math.trunc(20*(0-ExpectationToWin)),
+                gain_coins: 10
+            })
+            user.elos_historique.push({date:new Date(),elos:user.elos + Math.trunc(20*(0-ExpectationToWin))})
+            user.elos += Math.trunc(20*(0-ExpectationToWin))
+            user.save()
+            console.log('dans la boucle team2')
+            console.log(gain_perte)
+        }
+    }else if(winner == 2){
+        for(var joueur of team1){
+            const user = await User.findById(joueur._id)
+            const ExpectationToWin = 1/(1+10**((meanEloTeam2-user.elos)/400));
+            console.log(user)
+            console.log('esperance de gagner : '+ExpectationToWin)
+            console.log('gain/perte:'+Math.trunc(20*(0-ExpectationToWin)))
+            gain_perte.push({
+                joueur:user._id,
+                gain_elos: Math.trunc(20*(0-ExpectationToWin)),
+                gain_coins: 10
+            })
+            user.elos_historique.push({date:new Date(),elos:user.elos + Math.trunc(20*(0-ExpectationToWin))})
+            user.elos += Math.trunc(20*(0-ExpectationToWin))
+            user.save()
+        };
+
+        for(var joueur of team2){
+            const user = await User.findById(joueur._id)
+            const ExpectationToWin = 1/(1+10**((meanEloTeam1-user.elos)/400));
+            console.log(user)
+            console.log('esperance de gagner : '+ExpectationToWin)
+            console.log('gain/perte:'+Math.trunc(20*(1-ExpectationToWin)) )
+            gain_perte.push({
+                joueur:user._id,
+                gain_elos: Math.trunc(20*(1-ExpectationToWin)),
+                gain_coins: 10
+            })
+            user.elos_historique.push({date:new Date(),elos:user.elos + Math.trunc(20*(1-ExpectationToWin))})
+            user.elos += Math.trunc(20*(1-ExpectationToWin))
+            user.save()
+        }
+        console.log('fin de la fonction')
+        match.gain_perte = gain_perte
+        match.save()
+        return gain_perte
+    }
+}

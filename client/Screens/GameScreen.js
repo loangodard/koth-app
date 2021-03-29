@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Dimensions,FlatList, TouchableOpacity} from 're
 import LottieView from 'lottie-react-native';
 import axios from 'axios'
 
+import {useSelector} from 'react-redux'
 import colors from '../Constants/colors'
 import url from '../Constants/url'
 import LargeButton from '../Components/Boutons/LargeButton'
@@ -14,16 +15,23 @@ const width = Dimensions.get('window').width
 
 
 const GameScreen = ({route,navigation}) => {
+    const userId = useSelector(state => state.userId)
     const [team1, setTeam1] = useState([])
     const [team2, setTeam2] = useState([])
     const [showModal, setShowModal] = useState(false)
+    const [lobby, setLobby] = useState()
 
+    const handleVote = (vote) => {
+        setShowModal(false)
+        navigation.navigate('End-Game',{vote:vote,lobby:lobby,userId:userId})
+    }
 
     useEffect(() => {
         console.log(route.params.room)
         axios.get(url+'/match/'+route.params.room).then(match=>{
             setTeam1(match.data.team1)
             setTeam2(match.data.team2)
+            setLobby(match.data.lobby)
         })
     }, [])
 
@@ -40,10 +48,10 @@ const GameScreen = ({route,navigation}) => {
 
 
                     <View style={{flexDirection:'row'}}>
-                        <TouchableOpacity onPress={()=>navigation.navigate('end-game',{vote:1})} activeOpacity={0.7} style={{width:'60%',backgroundColor:'blue',padding:10,paddingVertical:15,alignItems:'center',marginHorizontal:5,borderRadius:20}}>
+                        <TouchableOpacity onPress={()=>handleVote(1)} activeOpacity={0.7} style={{width:'60%',backgroundColor:'blue',padding:10,paddingVertical:15,alignItems:'center',marginHorizontal:5,borderRadius:20}}>
                             <Text style={{color:'white',fontWeight:'700'}}>Équipe Bleue</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>navigation.navigate('end-game',{vote:2})} activeOpacity={0.7} style={{width:'60%',backgroundColor:'red',padding:10,paddingVertical:15,alignItems:'center',marginHorizontal:5,borderRadius:20}}>
+                        <TouchableOpacity onPress={()=>handleVote(2)} activeOpacity={0.7} style={{width:'60%',backgroundColor:'red',padding:10,paddingVertical:15,alignItems:'center',marginHorizontal:5,borderRadius:20}}>
                             <Text style={{color:'white',fontWeight:'700'}}>Équipe Rouge</Text>
                         </TouchableOpacity>
                     </View>

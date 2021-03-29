@@ -8,7 +8,11 @@ const userSchema = new Schema({
     elos:{type:Number,default:1000},
     coins:{type:Number,default:0},
     isTelVerified:{type:Boolean,default:false},
-    login_token:String
+    login_token:String,
+    elos_historique:{
+        type: [{date:Date,elos:Number}],
+        default: [{date: new Date(),elos : 1000}]
+    }
 });
 
 
