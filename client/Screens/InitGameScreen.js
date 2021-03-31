@@ -9,7 +9,7 @@ import shadow from '../Constants/shadow'
 
 const makeid = (length) => {
     var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var characters       = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789';
     var charactersLength = characters.length;
     for ( var i = 0; i < length; i++ ) {
        result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -48,7 +48,7 @@ const InitGameScreen = (props) => {
             </View>
 
             <View style={{width:'100%',justifyContent:'center',alignItems:'center',marginBottom:30}}>
-                <LargeButton fontSize={50} onPress={()=> props.navigation.navigate('Lobby',{lobbyId : makeid(5),userId : userId,nombreJoueurs:nombreJoueurs})}>GO</LargeButton>
+                <LargeButton fontSize={50} onPress={()=> props.navigation.navigate('Lobby',{lobbyId : makeid(6),userId : userId,nombreJoueurs:nombreJoueurs})}>GO</LargeButton>
             </View>
         </View>
     )
