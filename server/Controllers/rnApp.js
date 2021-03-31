@@ -1,5 +1,6 @@
 const User = require('../Models/User')
 const Match = require('../Models/Match')
+const Report = require('../Models/Report')
 const bcrypt = require('bcryptjs');
 const token = require('../Utils/token')
 
@@ -147,5 +148,23 @@ exports.getMatch = (req, res) => {
         return res.status(500).json({
             error: err
         })
+    })
+}
+
+exports.getResult = (req,res) => {
+    const userId = req.params.userId
+    const matchId = req.params.lobby
+    Match.findOne({lobby:matchId}).then(match => {
+        return res.status(200).json(match)
+    })
+}
+
+exports.postReport = (req,res) => {
+    const message = req.body.message;
+    const userId = req.body.userId
+    const matchId = req.body.matchId
+    const report = new Report({user:userId,match:matchId,message:message,date:new Date()})
+    report.save().then(r=>{
+        return res.status(200).json({success:true})
     })
 }
