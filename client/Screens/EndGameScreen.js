@@ -1,5 +1,6 @@
-import React, {useEffect,useState} from 'react'
-import { StyleSheet, Text, View, Button, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard,KeyboardAvoidingView, Platform} from 'react-native'
+import React, {useEffect,useState, useCallback, useRef} from 'react'
+import { StyleSheet, Text, View, Button, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard,KeyboardAvoidingView, Platform, AppState} from 'react-native'
+import { useFocusEffect } from '@react-navigation/native';
 
 import axios from 'axios'
 import url from '../Constants/url'
@@ -29,7 +30,6 @@ const EndGameScreen = ({navigation,route}) => {
                 setMatch(response.data)
                 if(response.data.winner == 0){
                     setIsDraw(true)
-                    console.log('EGALITE :(')
                 }else{
                     setGain(gain_perte_user)
                     setIsWinner(gain_perte_user.gain_elos > 0)
@@ -41,7 +41,6 @@ const EndGameScreen = ({navigation,route}) => {
     }, [])
 
     useEffect(() => {
-        console.log('emission de join_end_game')
         socket.emit('join_end_game', {room: route.params.lobby,userId : route.params.userId, vote:route.params.vote},(isGameOver)=>{
             if(isGameOver){
                 axios.get(url+'/result/'+route.params.lobby+"&"+route.params.userId).then(response => {
@@ -50,7 +49,6 @@ const EndGameScreen = ({navigation,route}) => {
                     setMatch(response.data)
                     if(response.data.winner == 0){
                         setIsDraw(true)
-                        console.log('EGALITE :(')
                     }else{
                         setGain(gain_perte_user)
                         setIsWinner(gain_perte_user.gain_elos > 0)
@@ -77,6 +75,51 @@ const EndGameScreen = ({navigation,route}) => {
         }
     }
 
+    const appState = useRef(AppState.currentState);
+    const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+    useFocusEffect(
+        useCallback(() => {
+          AppState.addEventListener("change", _handleAppStateChange);
+      
+          return () => {
+            AppState.removeEventListener("change", _handleAppStateChange);
+          };
+        }, [])
+    )
+    
+    const _handleAppStateChange = (nextAppState) => {
+        console.log('--->'+nextAppState)
+        if(nextAppState == "background"){
+            console.log('bg')
+        }
+        if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+        ) {
+            socket.emit("reconnection_end_game", {room: route.params.lobby,userId : route.params.userId} ,(isGameOver) =>{
+                if(isGameOver){
+                    axios.get(url+'/result/'+route.params.lobby+"&"+route.params.userId).then(response => {
+                        const match = response.data
+                        const gain_perte_user = match.gain_perte.find(e => e.joueur == userId)
+                        setMatch(response.data)
+                        if(response.data.winner == 0){
+                            setIsDraw(true)
+                        }else{
+                            setGain(gain_perte_user)
+                            setIsWinner(gain_perte_user.gain_elos > 0)
+                            setShowModal(true)
+                        }
+                    })
+                }
+            })
+            console.log("App has come to the foreground!");
+        }
+
+        appState.current = nextAppState;
+        setAppStateVisible(appState.current);
+        console.log("AppState", appState.current);
+  };
 
     return (
         <View style={styles.container}>
@@ -122,7 +165,7 @@ const EndGameScreen = ({navigation,route}) => {
                         <TouchableOpacity onPress={handleSendReport} style={{borderWidth:1,borderRadius:10,borderColor:"white",paddingVertical:10,paddingHorizontal:10,justifyContent:'center',alignItems:'center'}} activeOpacity={0.8}>
                             <Text style={{color:'white',fontWeight:'bold'}}>
                                 {(!reportSent && report == "") && "Passer"}
-                                {(!reportSent && report != "") && "Passer"}
+                                {(!reportSent && report != "") && "Soumettre"}
                                 {reportSent && <AntDesign name="check" size={18} color="white" />}
                             </Text>
                         </TouchableOpacity>

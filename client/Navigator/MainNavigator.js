@@ -47,6 +47,7 @@ import LobbyScreen from '../Screens/LobbyScreen'
 import JoinGame from '../Screens/JoinGame'
 import GameScreen from '../Screens/GameScreen'
 import EndGameScreen from '../Screens/EndGameScreen'
+import RankScreen from '../Screens/RankScreen'
 
 
 const navigatorOptions ={
@@ -74,6 +75,7 @@ const MainNavigator = () => {
     return(
         <Stack.Navigator >
             <Stack.Screen name="Home" component={MainScreen} options={{headerShown: false}}/>
+            <Stack.Screen name="Classement" component={RankScreen} options={navigatorOptions}/>
             <Stack.Screen name="Menu" component={MenuScreen} options={navigatorOptions}/>
             <Stack.Screen name="Creer" component={InitGameScreen} options={{...navigatorOptions,...{title:"Nouvelle Partie"}}}/>
             <Stack.Screen name='Rejoindre' component={JoinGame} options={navigatorOptions}/>

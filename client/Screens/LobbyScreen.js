@@ -1,5 +1,7 @@
-import React,{useState, useEffect} from 'react'
+import React,{useState, useEffect,useRef, useCallback} from 'react'
 import { StyleSheet, Text, View, Dimensions,ScrollView, FlatList, AppState,Alert,TouchableOpacity, ActivityIndicator } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native';
+
 import * as Location from 'expo-location';
 
 import QRCode from 'react-native-qrcode-svg';
@@ -38,64 +40,69 @@ const LobbyScreen = ({route,navigation}) => {
         setUsers(data)
     })
 
-    socket.on('disconnect',()=>{
-        socket.emit('leave_lobby', {room: route.params.lobbyId,userId : route.params.userId})
-    })
+    // socket.on('disconnect',()=>{
+    //     console.log('ON DISCONNECT')
+    //     socket.emit('leave_lobby', {room: route.params.lobbyId,userId : route.params.userId})
+    // })
 
     socket.on('match_begin',(data)=>{
         socket.disconnect()
         navigation.navigate('Game',{users:users,room:route.params.lobbyId}) 
     })
 
-    useEffect(() => {
-        setLobbyId(route.params.lobbyId)
-        Location.getLastKnownPositionAsync().then(r=>{
-            socket.emit('join_lobby', {room: route.params.lobbyId,userId : route.params.userId,nombreJoueurs:route.params.nombreJoueurs,position : {latitude : r.coords.latitude,longitude: r.coords.longitude}});
-        })
-
-        socket.on('lobby_full',()=>{
-            Alert.alert(
-                "Désolé...",
-                "La partie que vous tentez de rejoindre est complète",
-                [
-                  {
-                    text: "Revenir",
-                    onPress: () => navigation.navigate('Menu'),
-                  },
-                ],
-                {
-                  cancelable: true,
-                  onDismiss: () =>
-                    Alert.alert(
-                      "This alert was dismissed by tapping outside of the alert dialog."
-                    ),
-                }
-              );
-        })
-
-        socket.on('wrong_location',()=>{
-            Alert.alert(
-                "Erreur",
-                "Vous être trop éloigné du/des joueur(s) du lobby que vous souhaitez rejoindre",
-                [
-                  {
-                    text: "Revenir",
-                    onPress: () => navigation.navigate('Menu'),
-                  },
-                ],
-                {
-                  cancelable: true,
-                  onDismiss: () =>
-                    Alert.alert(
-                      "This alert was dismissed by tapping outside of the alert dialog."
-                    ),
-                }
-              );
-        })
-        return () => {
-            socket.emit('leave_lobby', {room: route.params.lobbyId,userId : route.params.userId})
-        }
-    },[]);
+    useFocusEffect(
+        useCallback(() => {
+            setIsLoading(true)
+            setLobbyId(route.params.lobbyId)
+            Location.getLastKnownPositionAsync().then(r=>{
+                socket.emit('join_lobby', {room: route.params.lobbyId,userId : route.params.userId,nombreJoueurs:route.params.nombreJoueurs,position : {latitude : r.coords.latitude,longitude: r.coords.longitude}});
+                setIsLoading(false)
+            })
+    
+            socket.on('lobby_full',()=>{
+                Alert.alert(
+                    "Désolé...",
+                    "La partie que vous tentez de rejoindre est complète",
+                    [
+                      {
+                        text: "Revenir",
+                        onPress: () => navigation.navigate('Menu'),
+                      },
+                    ],
+                    {
+                      cancelable: true,
+                      onDismiss: () =>
+                        Alert.alert(
+                          "This alert was dismissed by tapping outside of the alert dialog."
+                        ),
+                    }
+                  );
+            })
+    
+            socket.on('wrong_location',()=>{
+                Alert.alert(
+                    "Erreur",
+                    "Vous être trop éloigné du/des joueur(s) du lobby que vous souhaitez rejoindre",
+                    [
+                      {
+                        text: "Revenir",
+                        onPress: () => navigation.navigate('Menu'),
+                      },
+                    ],
+                    {
+                      cancelable: true,
+                      onDismiss: () =>
+                        Alert.alert(
+                          "This alert was dismissed by tapping outside of the alert dialog."
+                        ),
+                    }
+                  );
+            })
+            return () => {
+                socket.emit('leave_lobby', {room: route.params.lobbyId,userId : route.params.userId})
+            }
+        },[])
+    )
 
     const handleChangeTeam = (teamClicked) => {
         if(users.find(user=>user._id == route.params.userId).team == teamClicked){
@@ -105,6 +112,43 @@ const LobbyScreen = ({route,navigation}) => {
         //Dans ce cas on change l'équipe de l'utilisateur
         socket.emit('change_team',{room: route.params.lobbyId,userId : route.params.userId})
     }
+
+
+    const appState = useRef(AppState.currentState);
+    const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+    useFocusEffect(
+        useCallback(() => {
+          AppState.addEventListener("change", _handleAppStateChange);
+      
+          return () => {
+            AppState.removeEventListener("change", _handleAppStateChange);
+          };
+        }, [])
+    )
+
+  const _handleAppStateChange = (nextAppState) => {
+      console.log('--->'+nextAppState)
+    if(nextAppState == "background"){
+        console.log('bg')
+    }
+    if (
+      appState.current.match(/inactive|background/) &&
+      nextAppState === "active"
+    ) {
+        setIsLoading(true)
+        socket.emit("reconnection", {room: route.params.lobbyId,userId : route.params.userId} ,(lobby) =>{
+            setUsers(lobby)
+            setIsLoading(false)
+        })
+        console.log("App has come to the foreground!");
+    }
+
+    appState.current = nextAppState;
+    setAppStateVisible(appState.current);
+    console.log("AppState", appState.current);
+  };
+  
 
     return (
         <View style={styles.container}>
@@ -159,6 +203,11 @@ const LobbyScreen = ({route,navigation}) => {
                 {isLoading && <ActivityIndicator color='white'/>}
                 {!isLoading && "Prêt"}
             </LargeButton>
+
+
+            {/* Loading */}
+            {isLoading && <ActivityIndicator style={{position:"absolute"}} size="large" color="white" />}
+
         </View>
     )
 }

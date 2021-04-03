@@ -1,21 +1,17 @@
 const User = require('../Models/User')
 const Match = require('../Models/Match')
 const Report = require('../Models/Report')
+const Zone = require('../Models/Zone')
 const bcrypt = require('bcryptjs');
 const token = require('../Utils/token')
+const findZone = require('../Utils/findZone')
 
 
 
-exports.getIndex = async (req,res) => {
-    const users = []
-    for(let i = 0; i < 10; i++){
-        const user = await User.findOne()
-        user.elos = 1025
-        user.save()
-        users.push(user)
-    }
-    console.log(users)
-    return res.status(200).json(users)
+exports.getIndex = async (req, res) => {
+    findZone.findZone({latitude:48.198552,longitude:3.282151},r => {
+        return res.status(200).json(r)
+    })
 }
 
 exports.postRegister = (req, res) => {
@@ -151,20 +147,99 @@ exports.getMatch = (req, res) => {
     })
 }
 
-exports.getResult = (req,res) => {
+exports.getResult = (req, res) => {
     const userId = req.params.userId
     const matchId = req.params.lobby
-    Match.findOne({lobby:matchId}).then(match => {
+    Match.findOne({
+        lobby: matchId
+    }).then(match => {
         return res.status(200).json(match)
     })
 }
 
-exports.postReport = (req,res) => {
+exports.postReport = (req, res) => {
     const message = req.body.message;
     const userId = req.body.userId
     const matchId = req.body.matchId
-    const report = new Report({user:userId,match:matchId,message:message,date:new Date()})
-    report.save().then(r=>{
-        return res.status(200).json({success:true})
+    const report = new Report({
+        user: userId,
+        match: matchId,
+        message: message,
+        date: new Date()
+    })
+    report.save().then(r => {
+        return res.status(200).json({
+            success: true
+        })
+    })
+}
+
+exports.postCreateZone = (req, res) => {
+    const nom = "Troyes"
+    const border = [{latitude:48.32762873893757, longitude: 4.065952907069104},{latitude:48.328998311036166, longitude: 4.032307277186291},{latitude:48.32009543493688, longitude: 4.023724208338635},{latitude:48.307537455703844, longitude: 4.021320949061291},{latitude:48.290636388544215, longitude: 4.034367213709729},{latitude:48.28218375664806, longitude: 4.040547023280041},{latitude:48.26641700339144, longitude: 4.056683192713635},{latitude:48.26504575143811, longitude: 4.07453597591676},{latitude:48.25933180562814, longitude: 4.09650863216676},{latitude:48.26138889970039, longitude: 4.11573470638551},{latitude:48.27670022038468, longitude: 4.123631129725354},{latitude:48.28378301051799, longitude: 4.133587489588635},{latitude:48.293149063395155, longitude: 4.139423976405041},{latitude:48.30959260926163, longitude: 4.133244166834729},{latitude:48.3212369161531, longitude: 4.121914515955822},{latitude:48.33310680665046, longitude: 4.108181605799572},{latitude:48.335389161181205, longitude: 4.10440505550660},]
+
+
+    const zone = new Zone({
+        nom:nom,
+        border:border
+    })
+    zone.save()
+    return res.status(200).json({
+        success:true
+    })
+}
+
+exports.getZones = (req,res) => {
+    Zone.find().then(zones => {
+        return res.status(200).json(zones)
+    }).catch(err =>{
+        return res.status(500).json({
+            message:"Une erreur s'est produit"
+        })
+    })
+}
+
+exports.getElo = (req,res) => {
+    const userId = req.params.userId;
+    const zoneId = req.params.zoneId
+    User.findById(userId).then(user =>{
+        const elos = user.elos.slice()
+        const eloInZone = elos.find(e => e.zone == zoneId)
+        if(!eloInZone){
+            return res.status(200).json({
+                elo:1000
+            })
+        }
+
+        return res.status(200).json({
+            elo : eloInZone.elo
+        })
+    }).catch(err => {
+        console.log(err)
+        return res.status(500).json({
+            message:"db error"
+        })
+    })
+}
+
+exports.getClassement = (req,res) => {
+    const zoneId = req.params.zoneId
+    User.find().then(users => {
+        const classement = []
+        for(var user of users){
+            const userElo = user.elos
+            const userEloInZone = userElo.find(e => e.zone == zoneId)
+            if(userEloInZone){
+                classement.push(
+                    {
+                        id:user._id,
+                        pseudo:user.pseudo,
+                        elo:userEloInZone.elo
+                    }
+                )
+            }
+        }
+        classement.sort((a,b) => (a.elo > b.elo) ? -1 : 1)
+        return res.status(200).json(classement)
     })
 }

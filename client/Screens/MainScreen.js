@@ -1,73 +1,116 @@
-import React, {useEffect,useState,useRef} from 'react'
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image,StatusBar } from 'react-native'
+import React, {useEffect,useState,useRef,useCallback} from 'react'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image,StatusBar, ActivityIndicator, SafeAreaView } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native';
 
 import {useSelector} from 'react-redux'
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker, Polygon} from 'react-native-maps';
 import * as Location from 'expo-location';
 import {connect} from 'react-redux'
 import {logout} from '../store/actions/auth'
 
-import { Entypo,AntDesign  } from '@expo/vector-icons';
+import { Entypo,AntDesign,FontAwesome  } from '@expo/vector-icons';
 import colors from '../Constants/colors'
 
 import PlayButton from '../Components/Boutons/PlayButton'
 import ZoomToMe from '../Components/Boutons/ZoomToMe'
+import {isInside} from '../utils/findZone'
+import axios from 'axios'
+import url from '../Constants/url'
 
 
 const width = Dimensions.get('window').width
 
 const markers = [
-    {
-        id:1,
-        latitude : 48.19974252280393,
-        longitude : 3.277498727073468
-    },
-    {
-        id:2,
-        latitude : 48.86726,
-        longitude : 2.35000
-    },
-    {
-        id:3,
-        latitude : 48.83726,
-        longitude : 2.33000 
-    },
-    {
-        id:4,
-        latitude : 48.83726,
-        longitude : 2.33000 
-    },
-    {
-        id:5,
-        latitude : 48.83026,
-        longitude : 2.33900
-    }
+    // {
+    //     id:1,
+    //     latitude : 48.19974252280393,
+    //     longitude : 3.277498727073468
+    // },
+    // {
+    //     id:2,
+    //     latitude : 48.86726,
+    //     longitude : 2.35000
+    // },
+    // {
+    //     id:3,
+    //     latitude : 48.83726,
+    //     longitude : 2.33000 
+    // },
+    // {
+    //     id:4,
+    //     latitude : 48.83726,
+    //     longitude : 2.33000 
+    // },
+    // {
+    //     id:5,
+    //     latitude : 48.83026,
+    //     longitude : 2.33900
+    // }
 ]
 
 const MainScreen = (props) => {
-    const state = useSelector(state => state)
-    console.log(state)
+    const userId = useSelector(state => state.userId)
     let mapView
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
+    const [zones, setZones] = useState([])
+    const [actualZone, setActualZone] = useState({nom:"",id:""})
+    const [isInAZone, setIsInAZone] = useState(false)
+    const [elo, setElo] = useState("-")
+    const [isEloLoading, setIsEloLoading] = useState(false)
 
+    useFocusEffect(
+        useCallback(() => {
+            (async () => { //Request access to geolocation
+            let { status } = await Location.requestPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+    
+            let location_ = await Location.getCurrentPositionAsync({});
+            setLocation({
+                latitude: location_.coords.latitude,
+                longitude: location_.coords.longitude,
+                latitudeDelta: 0.0992,
+                longitudeDelta: 0.0591,
+            });
+            
+            const region_ = {latitude: location_.coords.latitude,longitude: location_.coords.longitude}
+            const indicator = 0
+            for(const zone of zones){
+                if(isInside(region_,zone.border)){
+                    if(zone._id != actualZone.id){
+                        console.log(zone._id)
+                        console.log(actualZone.id)
+                        setActualZone({nom:zone.nom,id:zone._id})
+                        setIsInAZone(true)
+                        setIsEloLoading(true)
+                        const elo = await axios.get(url+'/elo/'+userId+"&"+zone._id)
+                        setIsEloLoading(false)
+                        setElo(elo.data.elo)
+                        break
+                    }
+                    break
+                }
+                indicator++
+            }
+            if(indicator == zones.length){ //sorti de la zone 
+                setActualZone({nom:"",id:""})
+                setIsInAZone(false)
+            }
+            })();
+        }, [])
+    )
+
+    /**
+     * Fetching zone
+     */
     useEffect(() => {
-        (async () => { //Request access to geolocation
-        let { status } = await Location.requestPermissionsAsync();
-        if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
-        }
-
-        let location_ = await Location.getCurrentPositionAsync({});
-        setLocation({
-            latitude: location_.coords.latitude,
-            longitude: location_.coords.longitude,
-            latitudeDelta: 0.0992,
-            longitudeDelta: 0.0591,
-        });
-        })();
-    }, []);
+        axios.get(url+'/zones').then(response => {
+            setZones(response.data)
+        })
+    }, [])
 
     /**
      * Gestion de la caméra
@@ -87,11 +130,40 @@ const MainScreen = (props) => {
         })
     }
 
+    const handleOnRegionChange = async (region) => {
+        const region_ = {
+            latitude : region.latitude,
+            longitude : region.longitude
+        }
+
+        var indicator = 0 //devient zones.length si on a parcouru toutes les zones
+        for(const zone of zones){
+            if(isInside(region_,zone.border)){
+                if(zone._id != actualZone.id){
+                    console.log(zone._id)
+                    console.log(actualZone.id)
+                    setActualZone({nom:zone.nom,id:zone._id})
+                    setIsInAZone(true)
+                    setIsEloLoading(true)
+                    const elo = await axios.get(url+'/elo/'+userId+"&"+zone._id)
+                    setIsEloLoading(false)
+                    setElo(elo.data.elo)
+                    break
+                }
+                break
+            }
+            indicator++
+        }
+        if(indicator == zones.length){ //sorti de la zone 
+            setActualZone({nom:"",id:""})
+            setElo('--')
+            setIsInAZone(false)
+        }
+    }
+
 
     return (
         <View style={styles.container}>
-        <StatusBar barStyle="dark-content"/>
-
             <View style={styles.mapContainer}>
                 {/* MAP */}
                 <MapView style={styles.mapStyle}
@@ -99,6 +171,7 @@ const MainScreen = (props) => {
                     initialRegion={location}
                     showsUserLocation
                     showsMyLocationButton={true}
+                    onRegionChange={handleOnRegionChange}
                 >
                     {markers.map(m => {
                         return(
@@ -107,30 +180,37 @@ const MainScreen = (props) => {
                             </Marker>
                         )
                     })}
+                    {zones.map(z =>{
+                        return(
+                            <Polygon coordinates={z.border} fillColor="rgba(31,34,50,0.05)" strokeColor="rgba(31,34,50,0.9)" key={z._id}/>
+                        )
+                    })}
                 </MapView>
 
-                <TouchableOpacity style={styles.eloContainer} activeOpacity={0.85}>
-                    <View style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
-                        <Text style={styles.elo}>1500 </Text><Entypo name="trophy" size={25} color={colors.gold} />
-                    </View>
+                <View style={styles.eloContainer} activeOpacity={0.85}>
+                    <TouchableOpacity disabled={!isInAZone} onPress={()=>props.navigation.navigate('Classement',{zoneId:actualZone.id,nomZone : actualZone.nom})} style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+                        <Text style={styles.elo}>{isEloLoading ? <ActivityIndicator color="black"/> : elo} </Text><Entypo name="trophy" size={25} color={colors.gold} />
+                    </TouchableOpacity>
                     <View style={{
                         borderWidth:0.5,
                         height:"90%",
                         marginHorizontal:10,
                         borderColor:'grey'
                     }}></View>
-                    <View style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+                    <TouchableOpacity style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
                         <Text style={styles.elo}>200 </Text><AntDesign name="star" size={25} color={colors.purple} />
-                    </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                </View>
+
+                {(actualZone.nom !== "") && <View style={styles.zoneTagContainer}><Text style={{fontWeight:'700',fontSize:15}}>{actualZone.nom}</Text></View>}
                 
                 <View style={styles.buttonBar}>
                     <View style={styles.buttonDivisions}>
                         <TouchableOpacity onPress={()=>props.logout()}>
-                            <Text>LOGOUT</Text>
+                            <FontAwesome name="power-off" size={18} color="red" />
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.buttonDivisions}>
+                    <View style={styles.mainButtonDivisions}>
                         <PlayButton onPress={()=>props.navigation.navigate('Menu')}/>
                     </View>
                     <View style={styles.buttonDivisions}>
@@ -213,6 +293,32 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         alignItems:'center',
         height:'100%'
+    },
+    mainButtonDivisions:{
+        paddingHorizontal:10,
+        justifyContent:'center',
+        alignItems:'center',
+        height:'100%'
+    },
+    zoneTagContainer:{
+        width:200,
+        maxWidth:"90%",
+        height:30,
+        position:'absolute',
+        top:90,
+        backgroundColor:"white",
+        borderRadius:15,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.30,
+        shadowRadius: 4.65,
+        elevation: 8,
+        justifyContent:'center',
+        alignItems:'center',
+        flexDirection:"row",
+        padding:7
     }
 })
-

@@ -13,6 +13,10 @@ const matchSchema = new Schema({
         latitude:Number,
         longitude:Number
     },
+    zone:{
+        type:String,
+        ref:'Zone'
+    },
     gain_perte:[
         {
             joueur:{type:String,ref: 'User'},

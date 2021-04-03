@@ -16,6 +16,7 @@ const width = Dimensions.get('window').width
 
 const GameScreen = ({route,navigation}) => {
     const userId = useSelector(state => state.userId)
+    const [zone, setZone] = useState("")
     const [team1, setTeam1] = useState([])
     const [team2, setTeam2] = useState([])
     const [showModal, setShowModal] = useState(false)
@@ -29,6 +30,7 @@ const GameScreen = ({route,navigation}) => {
     useEffect(() => {
         console.log(route.params.room)
         axios.get(url+'/match/'+route.params.room).then(match=>{
+            setZone(match.data.zone)
             setTeam1(match.data.team1)
             setTeam2(match.data.team2)
             setLobby(match.data.lobby)
@@ -70,7 +72,7 @@ const GameScreen = ({route,navigation}) => {
                             return(
                             <View style={{flexDirection:'row',flex:1,width:width/2}}>
                                 <View style={{flex:3}}>
-                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.toString()}/>
+                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.filter(e => e.zone == zone)[0].elo}/>
                                 </View>
                             </View>
                             )
@@ -80,7 +82,7 @@ const GameScreen = ({route,navigation}) => {
                             return(
                             <View style={{flexDirection:'row',flex:1,width:width/2}}>
                                 <View style={{flex:3}}>
-                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.toString()}/>
+                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.filter(e => e.zone == zone)[0].elo}/>
                                 </View>
                             </View>
                             )
