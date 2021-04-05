@@ -2,80 +2,19 @@ const express = require('express');
 
 const router = express.Router();
 
+const PSIControllers = require('../Controllers/PhysicalShopItem');
+
 const PSI = require('../Models/PhysicalShopItem');
 
-router.post( '/',  (req,res,next) => {
-    const psi = new PSI ({
-       nom: req.body.nom,
-       description: req.body.description,
-       imageURL: req.body.imageURL,
-       moneyCost: req.body.moneyCost 
-    });
-    psi.save()
-        .then(  () => {
-            res.status(201).json({
-              message: 'PhysicalShopItem saved successfully!'
-            });
-          }
-        )
-        .catch(
-          (error) => {
-            res.status(400).json({
-              error: error
-            });
-          }
-        );
-});
+router.post( '/', PSIControllers.createPSI);
 
-router.get('/', (req,res,next) => {
-  PSI.find()
-      .then( (psis) => {
-        res.status(200).json(psis)
-      })
-      .catch( 
-        (error) => {
-          res.status(400).json({error: error})
-        });
-});
+router.get('/', PSIControllers.getAllPSI);
 
-router.get('/:id', (req,res,next) => {
-  PSI.findOne({_id: req.params.id})
-      .then( (psi) => {
-        res.status(200).json(psi)
-      })
-      .catch( (error) => {
-        res.status(404).json({error:error})
-      });
-});
+router.get('/:id', PSIControllers.getOnePSI);
 
-router.put('/:id', (req,res,next) => {
-  const psi = new PSI ({
-    _id: req.params.id,
-    nom: req.body.nom,
-    description: req.body.description,
-    imageURL: req.body.imageURL,
-    moneyCost: req.body.moneyCost
-  });
-  PSI.updateOne({_id: req.params.id}, psi)
-    .then( (201) => {
-      res.status().json({
-        message: 'PSI successfully updated'
-      })
-    })
-    .catch( (error) => {
-      res.status(400).json({error: error})
-    });
-});
+router.put('/:id', PSIControllers.updatePSI);
 
-router.delete('/:id', (req,res,next) => {
-  PSI.deleteOne({_id: req.params.id})
-    .then(() => {
-      res.status(200).json({message:'PSI deleted'})
-    })
-    .catch( (error) => {
-      res.status(400).json({error:error})
-    });
-});
+router.delete('/:id', PSIControllers.deletePSI);
 
 
 module.exports = router;
