@@ -77,7 +77,7 @@ exports.manageSockets = (io) => {
                             longitude: Number(actual_room.users[actual_room.users.length - 1].position.longitude)
                         }
     
-                        if (geolib.getDistance(userJoiningPosition, previousUserPosition) > 10000) {
+                        if (geolib.getDistance(userJoiningPosition, previousUserPosition) > 500) {
                             return socket.emit('wrong_location')
                         }
     
