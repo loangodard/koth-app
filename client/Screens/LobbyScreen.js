@@ -98,6 +98,27 @@ const LobbyScreen = ({route,navigation}) => {
                     }
                   );
             })
+
+            socket.on('wrong_zone',()=>{
+                Alert.alert(
+                    "Erreur",
+                    "Vous devez être dans une zone enregistrée sur la carte pour jouer",
+                    [
+                      {
+                        text: "Revenir",
+                        onPress: () => navigation.navigate('Menu'),
+                      },
+                    ],
+                    {
+                      cancelable: true,
+                      onDismiss: () =>
+                        Alert.alert(
+                          "This alert was dismissed by tapping outside of the alert dialog."
+                        ),
+                    }
+                  );
+            })
+
             return () => {
                 socket.emit('leave_lobby', {room: route.params.lobbyId,userId : route.params.userId})
             }

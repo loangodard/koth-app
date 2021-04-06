@@ -87,7 +87,9 @@ const MainNavigator = () => {
   }else if(!isAuth && did_try_al){
     return(AuthNavigator())
   }else if(!isAuth && !did_try_al){
-    return(<StartUpScreen />)
+    return(
+        <StartUpScreen/>
+      )
   }
 }
 

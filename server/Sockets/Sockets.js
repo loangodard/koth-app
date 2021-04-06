@@ -9,7 +9,6 @@ exports.manageSockets = (io) => {
     var rooms_end_game = [] //Liste des lobbys de salle de fin de partie
 
     io.on("connection", socket => {
-        
         socket.on('disconnect', function() {
             console.log('Got disconnect!');
         });
@@ -33,6 +32,9 @@ exports.manageSockets = (io) => {
             socket.join(data.room) //L'user rejoint la room donnée
             User.findById(data.userId).then(user => { //On récupère les infos du joueurs pour les passer aux autres joueurs
                 findZone.findZone(data.position,zone=>{
+                    if(!zone){
+                        return socket.emit('wrong_zone')
+                    }
                     const userEloInZoneIndex = user.elos.findIndex(e => e.zone == zone._id);
                     let userEloInZone
                     if(userEloInZoneIndex < 0){

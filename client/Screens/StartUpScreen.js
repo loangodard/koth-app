@@ -3,9 +3,10 @@ import { StyleSheet, View,ActivityIndicator } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux'
 import {login,didTryAL} from '../store/actions/auth'
-import colors from '../Constants/colors'
+import axios from 'axios'
+import url from '../Constants/url'
 
-const StartUpScreen = () => {
+const StartUpScreen = (props) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -16,9 +17,10 @@ const StartUpScreen = () => {
             return;
         }
         const transformerdData = JSON.parse(userData)
-        dispatch(login(userId=transformerdData.userId,token=transformerdData.token))
-      }
-      tryLogin()
+        const userId_ = transformerdData.userId
+        dispatch(login(userId=userId_,token=transformerdData.token))
+    }
+    tryLogin()
     }, [dispatch])
   
     return (

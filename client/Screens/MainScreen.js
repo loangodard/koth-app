@@ -1,9 +1,11 @@
 import React, {useEffect,useState,useRef,useCallback} from 'react'
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image,StatusBar, ActivityIndicator, SafeAreaView } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
+
 
 import {useSelector} from 'react-redux'
-import MapView, {Marker, Polygon} from 'react-native-maps';
+import MapView, {Callout, Marker, Polygon} from 'react-native-maps';
 import * as Location from 'expo-location';
 import {connect} from 'react-redux'
 import {logout} from '../store/actions/auth'
@@ -17,15 +19,17 @@ import {isInside} from '../utils/findZone'
 import axios from 'axios'
 import url from '../Constants/url'
 
+import CalloutGame from '../Components/CalloutGame'
+
 
 const width = Dimensions.get('window').width
 
 const markers = [
-    // {
-    //     id:1,
-    //     latitude : 48.19974252280393,
-    //     longitude : 3.277498727073468
-    // },
+    {
+        id:1,
+        latitude : 48.19974252280393,
+        longitude : 3.277498727073468
+    },
     // {
     //     id:2,
     //     latitude : 48.86726,
@@ -50,7 +54,7 @@ const markers = [
 
 const MainScreen = (props) => {
     const userId = useSelector(state => state.userId)
-    let mapView
+    let mapView = useRef()
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [zones, setZones] = useState([])
@@ -58,6 +62,9 @@ const MainScreen = (props) => {
     const [isInAZone, setIsInAZone] = useState(false)
     const [elo, setElo] = useState("-")
     const [isEloLoading, setIsEloLoading] = useState(false)
+    const [coins, setCoins] = useState()
+    const [recentGameMarker, setRecentGameMarker] = useState(null)
+    const [inGameMarker, setInGameMarker] = useState([])
 
     useFocusEffect(
         useCallback(() => {
@@ -75,31 +82,7 @@ const MainScreen = (props) => {
                 latitudeDelta: 0.0992,
                 longitudeDelta: 0.0591,
             });
-            
-            const region_ = {latitude: location_.coords.latitude,longitude: location_.coords.longitude}
-            const indicator = 0
-            for(const zone of zones){
-                if(isInside(region_,zone.border)){
-                    if(zone._id != actualZone.id){
-                        console.log(zone._id)
-                        console.log(actualZone.id)
-                        setActualZone({nom:zone.nom,id:zone._id})
-                        setIsInAZone(true)
-                        setIsEloLoading(true)
-                        const elo = await axios.get(url+'/elo/'+userId+"&"+zone._id)
-                        setIsEloLoading(false)
-                        setElo(elo.data.elo)
-                        break
-                    }
-                    break
-                }
-                indicator++
-            }
-            if(indicator == zones.length){ //sorti de la zone 
-                setActualZone({nom:"",id:""})
-                setIsInAZone(false)
-            }
-            })();
+        })();
         }, [])
     )
 
@@ -110,7 +93,44 @@ const MainScreen = (props) => {
         axios.get(url+'/zones').then(response => {
             setZones(response.data)
         })
+
+        const interval = setInterval(()=>{
+            axios.get(url+'/zones').then(response => {
+                setZones(response.data)
+            })
+        },30*1000)
+
+        axios.get(url+'/game-markers').then(matchs => {
+            setRecentGameMarker(matchs.data.matchs24H)
+        })
+
+        axios.get(url+'/is-in-game/'+userId).then(match =>{
+            if(match.data){
+                if(!match.data.isGameOver){
+                    props.navigation.navigate('Game',{room:match.data.lobby})
+                }
+            }
+        })
+
+        return ()=>{
+            clearInterval(interval)
+        }
     }, [])
+
+    useFocusEffect(
+        useCallback(
+            () => {
+                axios.get(url+'/coins/'+userId).then(coins => {
+                    setCoins(coins.data.coins)
+                })
+
+                axios.get(url+'/game-markers').then(matchs => {
+                    setRecentGameMarker(matchs.data.matchs24H)
+                })
+            },
+            [],
+        )
+    )
 
     /**
      * Gestion de la caméra
@@ -140,8 +160,6 @@ const MainScreen = (props) => {
         for(const zone of zones){
             if(isInside(region_,zone.border)){
                 if(zone._id != actualZone.id){
-                    console.log(zone._id)
-                    console.log(actualZone.id)
                     setActualZone({nom:zone.nom,id:zone._id})
                     setIsInAZone(true)
                     setIsEloLoading(true)
@@ -173,10 +191,12 @@ const MainScreen = (props) => {
                     showsMyLocationButton={true}
                     onRegionChange={handleOnRegionChange}
                 >
-                    {markers.map(m => {
+                    {recentGameMarker && recentGameMarker.reverse().map(m => {
                         return(
-                            <Marker coordinate={{ latitude : m.latitude,longitude : m.longitude}} key={m.id} onPress={() => zoomToCoordinates(m.latitude,m.longitude,2)}>
-                                    <Image style={{width:45,height:45}} source={require('../assets/hot_place.png')}/>
+                            <Marker coordinate={m.position} key={m._id} onPress={() => {zoomToCoordinates(m.position.latitude+0.0001,m.position.longitude,50)}}>
+                            {!m.isGameOver && <View style={{backgroundColor:'white',borderRadius:20,zIndex:10}}><LottieView source={require('../assets/ball-animation.json')} autoPlay loop  style={{height:30,width:30}}/></View>}
+                            {m.isGameOver && <View><Image source={require('../assets/past-game.png')} style={{width:35,height:35}}/></View>}
+                                <CalloutGame match={m._id} zones={zones} key={m._id}/>
                             </Marker>
                         )
                     })}
@@ -198,7 +218,7 @@ const MainScreen = (props) => {
                         borderColor:'grey'
                     }}></View>
                     <TouchableOpacity style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
-                        <Text style={styles.elo}>200 </Text><AntDesign name="star" size={25} color={colors.purple} />
+                        <Text style={styles.elo}>{coins} </Text><AntDesign name="star" size={25} color={colors.purple} />
                     </TouchableOpacity>
                 </View>
 

@@ -25,7 +25,7 @@ exports.calculateElo = async (winner,team1,team2,match) => {
                 meanEloTeam2 += joueur.elos[eloJoueurIndex].elo
             }
         }
-        meanEloTeam2 = (meanEloTeam2/team1.length) || 0
+        meanEloTeam2 = (meanEloTeam2/team2.length) || 0
 
 
         if(winner == 1){

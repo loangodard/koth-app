@@ -147,6 +147,17 @@ exports.getMatch = (req, res) => {
     })
 }
 
+exports.getMatchById = (req, res) => {
+    const id = req.params.id;
+    Match.findById(id).populate('team1', 'pseudo elos').populate('team2', 'pseudo elos').then(match => {
+        return res.status(200).json(match)
+    }).catch(err => {
+        return res.status(500).json({
+            error: err
+        })
+    })
+}
+
 exports.getResult = (req, res) => {
     const userId = req.params.userId
     const matchId = req.params.lobby
@@ -241,5 +252,54 @@ exports.getClassement = (req,res) => {
         }
         classement.sort((a,b) => (a.elo > b.elo) ? -1 : 1)
         return res.status(200).json(classement)
+    })
+}
+
+exports.getCoins = (req,res) => {
+    const userId = req.params.userId
+    User.findById(userId).then(user => {
+        return res.status(200).json({
+            coins : user.coins
+        })
+    })
+}
+
+exports.getGameMarkers = (req,res) => {
+    const matchs24H = []
+    const now = new Date()
+    const H24 = 24*60*60*1000
+    Match.find({"date_debut" :{$gt:new Date(Date.now() - 24*60*60 * 1000)}}).then(matchs => {
+        for(let match of matchs){
+            if(Math.abs(now - match.date_debut) < H24){ //Si le match date de moins de 24h
+                matchs24H.push(match)
+            }
+        }
+        return res.status(200).json({
+            matchs24H : matchs24H
+        })
+    }).catch(err =>{
+        console.log(err)
+        return res.status(500).json({
+            message:"DB error"
+        })
+    })
+}
+
+exports.getIsInGame = (req,res) => {
+    const userId = req.params.id
+    Match.findOne({
+        $and : [
+            { 
+              $or : [ 
+                      {"team1" : userId},
+                      {"team2" : userId}
+                    ]
+            },
+            { 
+              "isGameOver":false
+            }
+          ]
+    }).then(matchs =>{
+        return res.status(200).json(matchs)
     })
 }

@@ -1,5 +1,5 @@
 import React,{useState, useEffect} from 'react'
-import { StyleSheet, Text, View, Dimensions,FlatList, TouchableOpacity} from 'react-native'
+import { StyleSheet, Text, View, Dimensions,FlatList, TouchableOpacity, Alert} from 'react-native'
 import LottieView from 'lottie-react-native';
 import axios from 'axios'
 
@@ -21,6 +21,7 @@ const GameScreen = ({route,navigation}) => {
     const [team2, setTeam2] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [lobby, setLobby] = useState()
+    const [dateDebut, setDateDebut] = useState()
 
     const handleVote = (vote) => {
         setShowModal(false)
@@ -34,8 +35,25 @@ const GameScreen = ({route,navigation}) => {
             setTeam1(match.data.team1)
             setTeam2(match.data.team2)
             setLobby(match.data.lobby)
+            setDateDebut(match.data.date_debut)
         })
     }, [])
+
+    const handleFinDuMatch = () => {
+        const now = new Date()
+        //5 minutes
+        if(Math.abs(now - new Date(dateDebut)) > 5*60*1000){
+            setShowModal(true)
+        }else{
+            Alert.alert(
+                "Match trop rapide",
+                "Pour des soucis d'abus, le match doit durer au moins 5 minutes",
+                [
+                  { text: "Ok" }
+                ]
+              );
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -89,7 +107,7 @@ const GameScreen = ({route,navigation}) => {
                     }}/>
 
             </View>
-            <LargeButton style={{height:50,marginVertical:20}} fontSize={30} onPress={()=>setShowModal(true)}>Fin du match</LargeButton>
+            <LargeButton style={{height:50,marginVertical:20}} fontSize={30} onPress={handleFinDuMatch}>Fin du match</LargeButton>
         </View>
     )
 }
