@@ -24,33 +24,6 @@ import CalloutGame from '../Components/CalloutGame'
 
 const width = Dimensions.get('window').width
 
-const markers = [
-    {
-        id:1,
-        latitude : 48.19974252280393,
-        longitude : 3.277498727073468
-    },
-    // {
-    //     id:2,
-    //     latitude : 48.86726,
-    //     longitude : 2.35000
-    // },
-    // {
-    //     id:3,
-    //     latitude : 48.83726,
-    //     longitude : 2.33000 
-    // },
-    // {
-    //     id:4,
-    //     latitude : 48.83726,
-    //     longitude : 2.33000 
-    // },
-    // {
-    //     id:5,
-    //     latitude : 48.83026,
-    //     longitude : 2.33900
-    // }
-]
 
 const MainScreen = (props) => {
     const userId = useSelector(state => state.userId)
