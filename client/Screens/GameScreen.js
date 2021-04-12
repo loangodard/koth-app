@@ -1,5 +1,5 @@
 import React,{useState, useEffect} from 'react'
-import { StyleSheet, Text, View, Dimensions,FlatList, TouchableOpacity, Alert} from 'react-native'
+import { StyleSheet, Text, View, Dimensions,FlatList, TouchableOpacity, Alert, Platform, StatusBar} from 'react-native'
 import LottieView from 'lottie-react-native';
 import axios from 'axios'
 
@@ -24,6 +24,7 @@ const GameScreen = ({route,navigation}) => {
     const [dateDebut, setDateDebut] = useState()
 
     const handleVote = (vote) => {
+        console.log('USERID:'+userId)
         setShowModal(false)
         navigation.navigate('End-Game',{vote:vote,lobby:lobby,userId:userId})
     }
@@ -42,7 +43,7 @@ const GameScreen = ({route,navigation}) => {
     const handleFinDuMatch = () => {
         const now = new Date()
         //5 minutes
-        if(Math.abs(now - new Date(dateDebut)) > 5*60*1000){
+        if(Math.abs(now - new Date(dateDebut)) > 0*60*1000){
             setShowModal(true)
         }else{
             Alert.alert(
@@ -57,7 +58,7 @@ const GameScreen = ({route,navigation}) => {
 
     return (
         <View style={styles.container}>
-
+        <StatusBar backgroundColor="black"/>
             <Modal
                 isVisible={showModal}
                 onBackdropPress={() => setShowModal(false)}
@@ -79,7 +80,7 @@ const GameScreen = ({route,navigation}) => {
             </Modal>
 
             <View style={{flex:2,justifyContent:'center',alignItems:'center'}}>
-                <LottieView source={require('../assets/spin_animation.json')} autoPlay loop  style={{height:'105%',zIndex:1}}/>
+                {Platform.OS === 'ios' && <LottieView source={require('../assets/spin_animation.json')} autoPlay loop  style={{height:'105%',zIndex:1}}/> }
                 <Text style={{color:"white",position:'absolute',zIndex:0,fontSize:95,fontFamily:"LaskiSansStencil-Black"}}>JOUEZ</Text>
 
             </View>

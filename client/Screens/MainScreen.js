@@ -10,7 +10,7 @@ import * as Location from 'expo-location';
 import {connect} from 'react-redux'
 import {logout} from '../store/actions/auth'
 
-import { Entypo,AntDesign,FontAwesome  } from '@expo/vector-icons';
+import { Entypo,AntDesign,FontAwesome,MaterialCommunityIcons } from '@expo/vector-icons';
 import colors from '../Constants/colors'
 
 import PlayButton from '../Components/Boutons/PlayButton'
@@ -39,15 +39,14 @@ const MainScreen = (props) => {
     const [recentGameMarker, setRecentGameMarker] = useState(null)
     const [inGameMarker, setInGameMarker] = useState([])
 
-    useFocusEffect(
-        useCallback(() => {
+    useEffect(() => {
             (async () => { //Request access to geolocation
             let { status } = await Location.requestPermissionsAsync();
             if (status !== 'granted') {
                 setErrorMsg('Permission to access location was denied');
                 return;
             }
-    
+
             let location_ = await Location.getCurrentPositionAsync({});
             setLocation({
                 latitude: location_.coords.latitude,
@@ -57,51 +56,73 @@ const MainScreen = (props) => {
             });
         })();
         }, [])
-    )
 
     /**
      * Fetching zone
      */
     useEffect(() => {
-        axios.get(url+'/zones').then(response => {
-            setZones(response.data)
-        })
-
-        const interval = setInterval(()=>{
+        const fetchData = () => {
             axios.get(url+'/zones').then(response => {
                 setZones(response.data)
             })
-        },30*1000)
-
-        axios.get(url+'/game-markers').then(matchs => {
-            setRecentGameMarker(matchs.data.matchs24H)
-        })
-
-        axios.get(url+'/is-in-game/'+userId).then(match =>{
-            if(match.data){
-                if(!match.data.isGameOver){
-                    props.navigation.navigate('Game',{room:match.data.lobby})
+    
+            axios.get(url+'/game-markers').then(matchs => {
+                setRecentGameMarker(matchs.data.matchs24H)
+            })
+    
+            axios.get(url+'/is-in-game/'+userId).then(match =>{
+                if(match.data){
+                    if(!match.data.isGameOver){
+                        props.navigation.navigate('Game',{room:match.data.lobby})
+                    }
                 }
-            }
-        })
-
-        return ()=>{
-            clearInterval(interval)
+            })
         }
+
+        fetchData()
+
     }, [])
 
     useFocusEffect(
         useCallback(
             () => {
-                axios.get(url+'/coins/'+userId).then(coins => {
-                    setCoins(coins.data.coins)
-                })
+                console.log('ici + here')
+                console.log(location)
+                const fetchDataOnFocus = async () => {
+                    axios.get(url+'/coins/'+userId).then(coins => {
+                        setCoins(coins.data.coins)
+                    })
+    
+                    axios.get(url+'/game-markers').then(matchs => {
+                        setRecentGameMarker(matchs.data.matchs24H)
+                    })
 
-                axios.get(url+'/game-markers').then(matchs => {
-                    setRecentGameMarker(matchs.data.matchs24H)
-                })
+                    var indicator = 0 //devient zones.length si on a parcouru toutes les zones)
+                    for(const zone of zones){
+                        console.log(zone)
+                        if(isInside({latitude:location.latitude,longitude:location.longitude},zone.border)){
+                            console.log('hey, im in a zone')
+                            setActualZone({nom:zone.nom,id:zone._id})
+                            setIsInAZone(true)
+                            setIsEloLoading(true)
+                            const elo = await axios.get(url+'/elo/'+userId+"&"+zone._id)
+                            setIsEloLoading(false)
+                            setElo(elo.data.elo)
+                            break
+                        }
+                        indicator++
+                    }
+
+                    if(indicator == zones.length){ //sorti de la zone 
+                        setActualZone({nom:"",id:""})
+                        setElo('--')
+                        setIsInAZone(false)
+                    }
+
+                }
+                fetchDataOnFocus()
             },
-            [],
+            [location,zones],
         )
     )
 
@@ -164,12 +185,28 @@ const MainScreen = (props) => {
                     showsMyLocationButton={true}
                     onRegionChange={handleOnRegionChange}
                 >
-                    {recentGameMarker && recentGameMarker.reverse().map(m => {
+                    {recentGameMarker && recentGameMarker.map((m,index) => {
+                        const deltaDates = Math.abs(new Date() - new Date(m.date_debut))+1
+                        const uneHeure = 60*60*1000
+                        //Delta in [0; 86400000]
+                        let opac;
+                        if(deltaDates < uneHeure){
+                            opac=1
+                        }else if(uneHeure <= deltaDates <3*uneHeure){
+                            opac=0.8
+                        }else if(3*uneHeure <= deltaDates < 10*uneHeure){
+                            opac=0.5
+                        }else{
+                            opac=0.2
+                        }
+                        //Rouge si le match a moins de 30 minutes
+                        const color = (deltaDates < uneHeure / 2) ? "red" : 'black'
                         return(
-                            <Marker coordinate={m.position} key={m._id} onPress={() => {zoomToCoordinates(m.position.latitude+0.0001,m.position.longitude,50)}}>
-                            {!m.isGameOver && <View style={{backgroundColor:'white',borderRadius:20,zIndex:10}}><LottieView source={require('../assets/ball-animation.json')} autoPlay loop  style={{height:30,width:30}}/></View>}
-                            {m.isGameOver && <View><Image source={require('../assets/past-game.png')} style={{width:35,height:35}}/></View>}
-                                <CalloutGame match={m._id} zones={zones} key={m._id}/>
+                            <Marker coordinate={m.position} key={index} onPress={() => {zoomToCoordinates(m.position.latitude+0.0001,m.position.longitude,50)}}>
+                            {/* {!m.isGameOver && <View style={{backgroundColor:'white',borderRadius:20,zIndex:10}}><LottieView source={require('../assets/ball-animation.json')} autoPlay loop  style={{height:30,width:30}}/></View>}
+                            {m.isGameOver && <View><Image source={require('../assets/past-game.png')} style={{width:35,height:35}}/></View>} */}
+                                <MaterialCommunityIcons name="basketball-hoop" size={40} color={color} style={{opacity:opac}}/>
+                                <CalloutGame match={m._id} zones={zones} key={index}/>
                             </Marker>
                         )
                     })}
@@ -190,10 +227,16 @@ const MainScreen = (props) => {
                         marginHorizontal:10,
                         borderColor:'grey'
                     }}></View>
-                    <TouchableOpacity style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+                    <TouchableOpacity disabled style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
                         <Text style={styles.elo}>{coins} </Text><AntDesign name="star" size={25} color={colors.purple} />
                     </TouchableOpacity>
                 </View>
+
+                <TouchableOpacity style={styles.notifContainer} onPress={() => props.navigation.navigate('Partager')}>
+                    <View style={{backgroundColor:'white',borderRadius:20,padding:3,paddingRight:5}}>
+                        <Entypo name="share" size={22} color="black" />
+                    </View>
+                </TouchableOpacity>
 
                 {(actualZone.nom !== "") && <View style={styles.zoneTagContainer}><Text style={{fontWeight:'700',fontSize:15}}>{actualZone.nom}</Text></View>}
                 
@@ -313,5 +356,15 @@ const styles = StyleSheet.create({
         alignItems:'center',
         flexDirection:"row",
         padding:7
+    },
+    notifContainer:{
+        position:'absolute',
+        backgroundColor:colors.purple,
+        borderRadius:20,
+        padding:2,
+        top:45,
+        right:20,
+        justifyContent:'center',
+        alignItems:'center'
     }
 })

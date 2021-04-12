@@ -36,7 +36,7 @@ const CalloutGame = (props) => {
 
 
                 <View style={{width:'100%',borderWidth:1,borderColor:'blue',padding:5}}>
-                    {match.team1.map(joueur => {
+                    {match.team1.map((joueur,index) => {
                         let joueurElo
                         for(const zone of props.zones){
                             if(findZone.isInside(match.position,zone.border)){
@@ -44,7 +44,7 @@ const CalloutGame = (props) => {
                             }
                         }
                         return(
-                            <View style={{flexDirection:'row',justifyContent:'space-between'}} key={joueur._id}>
+                            <View style={{flexDirection:'row',justifyContent:'space-between'}} key={index}>
                                 <Text style={{fontWeight:'600'}}>{joueur.pseudo}</Text>
                                 <Text>{joueurElo} <Entypo name="trophy" size={15} color={colors.gold} /></Text>
                             </View>
@@ -54,7 +54,7 @@ const CalloutGame = (props) => {
 
                 <Text style={{textAlign:'center',fontSize:30,fontFamily:'LaskiSansStencil-Black',marginVertical:4}}>VS</Text>
                 <View style={{width:'100%',borderWidth:1,borderColor:'red',padding:5}}>
-                    {match.team2.map(joueur => {
+                    {match.team2.map((joueur,index) => {
                         let joueurElo
                         for(const zone of props.zones){
                             if(findZone.isInside(match.position,zone.border)){
@@ -62,7 +62,7 @@ const CalloutGame = (props) => {
                             }
                         }
                         return(
-                            <View style={{flexDirection:'row',justifyContent:'space-between'}} key={joueur._id}>
+                            <View style={{flexDirection:'row',justifyContent:'space-between'}} key={index}>
                                 <Text style={{fontWeight:'600'}}>{joueur.pseudo}</Text>
                                 <Text>{joueurElo} <Entypo name="trophy" size={15} color={colors.gold} /></Text>
                             </View>

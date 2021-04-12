@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "pc-api-8838629475844150295-464",
+  "private_key_id": "32b63106726c8e42363db4d9f03a36709c350c91",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC7ETebJhsLk5Hz\nkUdtdV/fPljZvHENiJ1lj7gL908da0RldzBdI/ApTi6sEbL6xW5EntyXPqXZVkB4\nRkMrD0RXIrfKC/b8Z20oG6DJfOQZ6Oh2GaZ/fJv1z0xosc2XrT65fzWEpSN0vaij\ndhtzG7Af3kvWdiJJXRVQKQe/L50t9ZAav3cKffzpZFsndsDukG/r18RTMnv6tB2F\n+z04BZTA7UkwfAks8nccK8GYxu//HJX31mN+WVcAQA2yD6ntKHXcRDMKhd+C2tl0\nNq43xB9O8TBzd1uCmw7DtUe9kIz/liKFzbi7bwMaQL8p7Z3PwqJ5mKe5mRq0Bhh7\ndXOaozuhAgMBAAECggEAAptUkEmpZlGl3sRHP8f7MEf04oHc/HCLKvNj/+ywEkug\nnh5ZUu7xhY3Umiq7+QEfzn59OfFSS9NHHjXycSrrC6DM+ViN1koVrBGofa5LGm5T\nsPOeDZg9ryD2ol3Z7NNp9JlIdGL9ub57111JuCKqY2NMYL5wL2AH8EBGHpyp/s4v\nXMVp7CqQmKTVlFaf5xnGi+5rCyHMurHckPFnSGX+arU3UioQwvXxEPvPfixNvrfH\n6+wDqNu6RySjzL6rhdGGTcQdj73tpRvCI5eZBx8AIKvNe7fqTwVEs7uHQ81l8ALl\nk0Wwq1qDe8OSBpuToetJc2R1dUG410ZiJxOmfELT3QKBgQDcGNEx7hF1Fwed2vZI\nb3qejtptbVVzqU0nwovHWpR2r/PoldFGtcIiq3OGpopHb2kdHokt/0EtvY7IZ2Nf\nBjJDNNY6vAf9EwLtSHJonkVI+PtYf7OgzZ+SyvPB5h2QKfM07YPXrVWB4q9spLeF\nO8nPB2aEaG12c/lWVWC4dFAJTQKBgQDZlRcSa9PS9VnxmYgukdEHViG3u8omYjId\n+UPOx/132f6gDz2qs4pN37CZIzWaeCWpkTU4DhaC27LmBByOCp5smSfwW4eEYUtG\nH+1OBJGebzVcvynT0Di9xqeYHBTNxDutSOJjY/c2J4Efc997Cm3BPshuGfevdrgN\nfslg15uxpQKBgGsckMIxz8EiAgzqgKzjw9LiRp62dL2jCO9umEPeax4Ppy3rqzs0\nPVROCBzhc64sJAWN1MjTzk6KT7Br0EpwY4mdbxyKYYDh/ayoczVCwQkwUnHRRAPf\nzebMajBU4tJD+B4r8NvHeTOKtEC1MLLgU+gy+8s4Xv0kl5VSW42o3UKJAoGAW8BW\n/lmh9W+pAgxwNNMghit4BHaYBB+caq9WPLhw1j2C9hP3OSiExdnyKmGClSTdHOgy\nvPST4ZKrmftZ3zvzGnBrOxwdxWER0PxdoWyjy1+x7O5fwQYpJz3CJo6Q50Q8thHq\nBWd+M8Ps20qNjuES705+To98tu0lJ+uzF7dT3FECgYBF5CavIGmJ8tldz6Kez/j8\neCHft/crx7mj2uPWEUpVnhPPG+Y1uUp4d6Zn6phU7PVjZU+9odoSTcOTGyndaL79\nDJi0FFoRYmaM4A6w0pNzj2VciTUTx3CGIgcT4VoKSagjVRBXsBZb9UPQTZOiZTUk\nITsnj3QE+/sEuWptoEKpRA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "expo-koth-app@pc-api-8838629475844150295-464.iam.gserviceaccount.com",
+  "client_id": "109953229169922839377",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/expo-koth-app%40pc-api-8838629475844150295-464.iam.gserviceaccount.com"
+}

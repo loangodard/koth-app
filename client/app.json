@@ -2,7 +2,7 @@
   "expo": {
     "name": "KOTH",
     "slug": "KOTH",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -17,13 +17,33 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.loangodard.king-of-the-hill",
+      "buildNumber": "1.0.2",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Nous avons besoin de l'accès à la caméra pour que vous puissiez rejoindre le lobby d'autres joueurs en scannant leur QR code.",
+        "NSLocationWhenInUseUsageDescription": "Nous utilisons votre position pour nous assurer que vous êtes bien proche d'autres joueurs pour lancer un match. La position des matchs sera ensuite affichés sur la carte de l'application."
+      }
     },
     "android": {
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "com.loangodard.KOTH",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDik1f0IZCfwfxuZ99KUxV-ICVC92G8dI4"
+        }
+      },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

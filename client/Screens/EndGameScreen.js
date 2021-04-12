@@ -1,5 +1,5 @@
 import React, {useEffect,useState, useCallback, useRef} from 'react'
-import { StyleSheet, Text, View, Button, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard,KeyboardAvoidingView, Platform, AppState} from 'react-native'
+import { StyleSheet, Text, View, Button, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard,KeyboardAvoidingView, Platform, AppState, ActivityIndicator} from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
 
 import axios from 'axios'
@@ -26,7 +26,9 @@ const EndGameScreen = ({navigation,route}) => {
         socket.on('voted',()=>{
             axios.get(url+'/result/'+route.params.lobby+"&"+route.params.userId).then(response => {
                 const match = response.data
-                const gain_perte_user = match.gain_perte.find(e => e.joueur == userId)
+                const gain_perte_user = match.gain_perte.find(e => e.joueur == route.params.userId)
+                console.log('user ='+route.params.userId)
+                console.log(gain_perte_user)
                 setMatch(response.data)
                 if(response.data.winner == 0){
                     setIsDraw(true)
@@ -46,6 +48,8 @@ const EndGameScreen = ({navigation,route}) => {
                 axios.get(url+'/result/'+route.params.lobby+"&"+route.params.userId).then(response => {
                     const match = response.data
                     const gain_perte_user = match.gain_perte.find(e => e.joueur == userId)
+                    console.log('user ='+route.params.userId)
+                    console.log(gain_perte_user)
                     setMatch(response.data)
                     if(response.data.winner == 0){
                         setIsDraw(true)
@@ -59,8 +63,7 @@ const EndGameScreen = ({navigation,route}) => {
         });
     }, [])
 
-    const handleSendReport = (
-    ) => {
+    const handleSendReport = () => {
         if(report != ""){
             axios.post(url+"/report",{message:report,userId:route.params.userId,matchId:match._id}).then(r=>{
                 setReportSent(true)
@@ -120,7 +123,6 @@ const EndGameScreen = ({navigation,route}) => {
         setAppStateVisible(appState.current);
         console.log("AppState", appState.current);
   };
-
     return (
         <View style={styles.container}>
             <Modal
@@ -129,8 +131,8 @@ const EndGameScreen = ({navigation,route}) => {
             >
                 <View style={styles.modal}>
                     <Text style={{fontFamily:"LaskiSansStencil-Black",fontSize:50,textAlign:'center',color:"white"}}>{isWinner ? "Victoire" : "Défaite"}</Text>
-                    {isWinner && <LottieView source={require('../assets/win-animation.json')} autoPlay style={{height:200,zIndex:1}}/>}
-                    {!isWinner && <LottieView source={require('../assets/defeat-animation.json')} autoPlay style={{height:200,zIndex:1}}/>}
+                    {(isWinner && (Platform.OS != 'android')) && <LottieView source={require('../assets/win-animation.json')} autoPlay style={{height:200,zIndex:1}}/>}
+                    {(!isWinner && (Platform.OS != 'android')) && <LottieView source={require('../assets/defeat-animation.json')} autoPlay style={{height:200,zIndex:1}}/>}
                     <View style={{width:'100%',height:100,justifyContent:'center',alignItems:'center',marginTop:10}}>
                         <View style={{flex:1}}>
                             <Text style={{color:'white',fontSize:20}}>
@@ -150,9 +152,10 @@ const EndGameScreen = ({navigation,route}) => {
             </Modal>
 
             <View style={{width:'100%',alignItems:'center'}}>
-                <LottieView source={require('../assets/loading-animation.json')} autoPlay style={{height:200,zIndex:1,marginBottom:10}}/>
+                {(Platform.OS === 'ios') && <LottieView source={require('../assets/loading-animation.json')} autoPlay style={{height:200,zIndex:1,marginBottom:10}}/>}
+                {(Platform.OS === 'android') && <ActivityIndicator size="large" color="white"/>}
                 <Text style={styles.text}>En attente des votes des autres joueurs...</Text>
-                <Button onPress={() => {console.log(isDraw);setIsDraw(true)}} title='show'/>
+                <Button color="white" onPress={() => {navigation.navigate('Home')}} title='Passer'/>
             </View>
                 
             <Modal isVisible={isDraw}>

@@ -25,14 +25,15 @@ const NewGameScreen = (props) => {
                     <Image source={require('../assets/button2.png')} style={styles.image}/>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.7} style={styles.button}>
+
+            {/* <TouchableOpacity activeOpacity={0.7} style={styles.button}>
                 <View style={{flex:2,justifyContent:'center',alignItems:'center'}}>
                     <Text style={styles.buttonTitle}>Prévoir</Text>
                 </View>
                 <View style={{flex:1}}>
                     <Image source={require('../assets/button3.png')} style={styles.image}/>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
     )
 }
