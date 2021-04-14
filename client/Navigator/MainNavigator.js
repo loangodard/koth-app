@@ -49,6 +49,7 @@ import GameScreen from '../Screens/GameScreen'
 import EndGameScreen from '../Screens/EndGameScreen'
 import RankScreen from '../Screens/RankScreen'
 import ShareScreen from '../Screens/ShareScreen'
+import ShopScreen from '../Screens/ShopScreen'
 
 const navigatorOptions ={
           headerStyle: {
@@ -76,12 +77,13 @@ const MainNavigator = () => {
         <Stack.Navigator >
             <Stack.Screen name="Home" component={MainScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Partager" component={ShareScreen} options={navigatorOptions}/>
+            <Stack.Screen name="Shop" component={ShopScreen} options={navigatorOptions}/>
             <Stack.Screen name="Classement" component={RankScreen} options={navigatorOptions}/>
             <Stack.Screen name="Menu" component={MenuScreen} options={navigatorOptions}/>
             <Stack.Screen name="Creer" component={InitGameScreen} options={{...navigatorOptions,...{title:"Nouvelle Partie"}}}/>
             <Stack.Screen name='Rejoindre' component={JoinGame} options={navigatorOptions}/>
             <Stack.Screen name="Lobby" component={LobbyScreen} options={navigatorOptions}/>
-            <Stack.Screen name="Game" component={GameScreen} options={{...navigatorOptions,...{gestureEnabled: false,headerLeft:null,title:"Premier à 21 points"}}} />
+            <Stack.Screen name="Game" component={GameScreen} options={{...navigatorOptions,...{gestureEnabled: false,headerLeft:null,title:"Premier à 15 points"}}} />
             <Stack.Screen name="End-Game" component={EndGameScreen} options={{...navigatorOptions,...{gestureEnabled: false,headerLeft:null,title:"Fin de partie"}}} />
         </Stack.Navigator>
     )

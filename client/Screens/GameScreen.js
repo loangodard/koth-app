@@ -43,12 +43,12 @@ const GameScreen = ({route,navigation}) => {
     const handleFinDuMatch = () => {
         const now = new Date()
         //5 minutes
-        if(Math.abs(now - new Date(dateDebut)) > 0*60*1000){
+        if(Math.abs(now - new Date(dateDebut)) > 3*60*1000){
             setShowModal(true)
         }else{
             Alert.alert(
                 "Match trop rapide",
-                "Pour des soucis d'abus, le match doit durer au moins 5 minutes",
+                "Pour des soucis d'abus, le match doit durer au moins 3 minutes",
                 [
                   { text: "Ok" }
                 ]

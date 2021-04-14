@@ -184,7 +184,7 @@ export default EndGameScreen
 
 const styles = StyleSheet.create({
     container:{
-        backgroundColor:"black",
+        backgroundColor:colors.background,
         justifyContent:'center',
         alignItems:'center',
         flex:1
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
         textAlign:'center'
     },
     modal:{
-        backgroundColor:'black',
+        backgroundColor:colors.background,
         padding:25,
         borderRadius:15,
         justifyContent:'center',

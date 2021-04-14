@@ -1,10 +1,12 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
+import ShopItem from '../Components/ShopItem'
+import colors from '../Constants/colors'
 
 const ShopScreen = () => {
     return (
-        <View>
-            <Text></Text>
+        <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:colors.background}}>
+            <ShopItem />
         </View>
     )
 }

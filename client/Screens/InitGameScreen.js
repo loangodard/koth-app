@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View, Switch, StatusBar } from 'react-native'
+import { StyleSheet, Text, View, Switch, StatusBar, Image, Dimensions } from 'react-native'
 import Slider from '@react-native-community/slider';
 import {useSelector} from 'react-redux'
 
@@ -19,6 +19,7 @@ const makeid = (length) => {
 
 
 const InitGameScreen = (props) => {
+    const width = Dimensions.get('window').width
     const [nombreJoueurs, setNombreJoueurs] = useState(6)
     const [ranked, setRanked] = useState(true)
     const [carte, setCarte] = useState(true)
@@ -29,7 +30,11 @@ const InitGameScreen = (props) => {
         <View style={styles.container}>
             <View style={{flex:1,width:'100%',justifyContent:'center',alignItems:'center'}}>
                 <View style={{...styles.matchCard,...shadow}}>
-                    <Text style={{color:colors.background,fontSize:70,fontWeight:'700'}}>{nombreJoueurs/2} vs {nombreJoueurs/2}</Text>
+                    {(nombreJoueurs == 2) && <Image source={require('../assets/1_contre_1.png')} style={{width:width/1.2,height:width/1.2,borderRadius:10}}/>}
+                    {(nombreJoueurs == 4) && <Image source={require('../assets/2_contre_2.png')} style={{width:width/1.2,height:width/1.2,borderRadius:10}}/>}
+                    {(nombreJoueurs == 6) && <Image source={require('../assets/3_contre_3.png')} style={{width:width/1.2,height:width/1.2,borderRadius:10}}/>}
+                    {(nombreJoueurs == 8) && <Image source={require('../assets/4_contre_4.png')} style={{width:width/1.2,height:width/1.2,borderRadius:10}}/>}
+                    {(nombreJoueurs == 10) && <Image source={require('../assets/5_contre_5.png')} style={{width:width/1.2,height:width/1.2,borderRadius:10}}/>}
                 </View>
                 <View style={{flex:1,justifyContent:'center',alignItems:'center',width:'100%'}}>
                     <Slider
@@ -64,11 +69,10 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background
     },
     matchCard:{
-        flex:1,
+        flex:2,
         justifyContent:'center',
         alignItems:'center',
-        width:'80%',
-        backgroundColor:"white",
-        borderRadius:20
+        borderRadius:20,
+        paddingTop:20
     }
 })

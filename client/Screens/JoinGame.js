@@ -35,7 +35,7 @@ const JoinGame = ({navigation}) => {
     }
 
     return (
-        <View style={{flex:1}}>
+        <View style={{flex:1,backgroundColor:'rgb(21,21,21)'}}>
             <BarCodeScanner
               onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
               style={StyleSheet.absoluteFillObject}

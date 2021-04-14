@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, Text, View, Dimensions, ActivityIndicator } from 
 import { FontAwesome5, Entypo } from '@expo/vector-icons';
 import axios from 'axios'
 import url from '../Constants/url'
+import colors from '../Constants/colors';
 
 
 const data = [
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
         flex:1,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:'black'
+        backgroundColor:colors.background
     },
     joueur:{
         borderWidth:1,

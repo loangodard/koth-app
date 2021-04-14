@@ -1,8 +1,6 @@
 import React, {useEffect,useState,useRef,useCallback} from 'react'
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image,StatusBar, ActivityIndicator, SafeAreaView } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image,StatusBar, ActivityIndicator, SafeAreaView, AppState } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
-import LottieView from 'lottie-react-native';
-
 
 import {useSelector} from 'react-redux'
 import MapView, {Callout, Marker, Polygon} from 'react-native-maps';
@@ -86,8 +84,6 @@ const MainScreen = (props) => {
     useFocusEffect(
         useCallback(
             () => {
-                console.log('ici + here')
-                console.log(location)
                 const fetchDataOnFocus = async () => {
                     axios.get(url+'/coins/'+userId).then(coins => {
                         setCoins(coins.data.coins)
@@ -99,9 +95,7 @@ const MainScreen = (props) => {
 
                     var indicator = 0 //devient zones.length si on a parcouru toutes les zones)
                     for(const zone of zones){
-                        console.log(zone)
                         if(isInside({latitude:location.latitude,longitude:location.longitude},zone.border)){
-                            console.log('hey, im in a zone')
                             setActualZone({nom:zone.nom,id:zone._id})
                             setIsInAZone(true)
                             setIsEloLoading(true)
@@ -173,6 +167,39 @@ const MainScreen = (props) => {
         }
     }
 
+    // GESTION DU RETOUR AU FOCUS
+    const appState = useRef(AppState.currentState);
+    const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+    useFocusEffect(
+        useCallback(() => {
+          AppState.addEventListener("change", _handleAppStateChange);
+      
+          return () => {
+            AppState.removeEventListener("change", _handleAppStateChange);
+          };
+        }, [])
+    )
+
+    const _handleAppStateChange = (nextAppState) => {
+        console.log('--->'+nextAppState)
+        if(nextAppState == "background"){
+            console.log('bg')
+        }
+        if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+        ) {
+            axios.get(url+'/game-markers').then(matchs => {
+                setRecentGameMarker(matchs.data.matchs24H)
+            })
+        }
+
+        appState.current = nextAppState;
+        setAppStateVisible(appState.current);
+        console.log("AppState", appState.current);
+    };
+
 
     return (
         <View style={styles.container}>
@@ -227,14 +254,22 @@ const MainScreen = (props) => {
                         marginHorizontal:10,
                         borderColor:'grey'
                     }}></View>
-                    <TouchableOpacity disabled style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+                    <TouchableOpacity style={{flex:1,flexDirection:"row",justifyContent:"center",alignItems:"center"}} onPress={() => props.navigation.navigate('Shop')}>
                         <Text style={styles.elo}>{coins} </Text><AntDesign name="star" size={25} color={colors.purple} />
                     </TouchableOpacity>
                 </View>
 
+                {/* SHARE BUTTON */}
                 <TouchableOpacity style={styles.notifContainer} onPress={() => props.navigation.navigate('Partager')}>
                     <View style={{backgroundColor:'white',borderRadius:20,padding:3,paddingRight:5}}>
                         <Entypo name="share" size={22} color="black" />
+                    </View>
+                </TouchableOpacity>
+
+                {/* SHOP BUTTON */}
+                <TouchableOpacity style={styles.rankContainer} onPress={() => props.navigation.navigate('Shop')}>
+                    <View style={{backgroundColor:'white',borderRadius:20,padding:5}}>
+                        <Entypo name="shop" size={20} color="black" />
                     </View>
                 </TouchableOpacity>
 
@@ -364,6 +399,16 @@ const styles = StyleSheet.create({
         padding:2,
         top:45,
         right:20,
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    rankContainer:{
+        position:'absolute',
+        backgroundColor:colors.purple,
+        borderRadius:20,
+        padding:2,
+        top:45,
+        left:20,
         justifyContent:'center',
         alignItems:'center'
     }
