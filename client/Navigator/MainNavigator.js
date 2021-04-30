@@ -50,6 +50,8 @@ import EndGameScreen from '../Screens/EndGameScreen'
 import RankScreen from '../Screens/RankScreen'
 import ShareScreen from '../Screens/ShareScreen'
 import ShopScreen from '../Screens/ShopScreen'
+import UserScreen from '../Screens/UserScreen'
+import AvatarBuilderScreen from '../Screens/AvatarBuilderScreen';
 
 const navigatorOptions ={
           headerStyle: {
@@ -69,6 +71,7 @@ const navigatorOptions ={
 import { useSelector} from 'react-redux'
 import StartUpScreen from '../Screens/StartUpScreen'
 
+
 const MainNavigator = () => {
   const did_try_al = useSelector(state=>state.didTryAL)
   const isAuth = useSelector(state=>state.isAuth)
@@ -77,6 +80,8 @@ const MainNavigator = () => {
         <Stack.Navigator >
             <Stack.Screen name="Home" component={MainScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Partager" component={ShareScreen} options={navigatorOptions}/>
+            <Stack.Screen name="Profil" component={UserScreen} options={navigatorOptions}/>
+            <Stack.Screen name="Avatar" component={AvatarBuilderScreen} options={navigatorOptions}/>
             <Stack.Screen name="Shop" component={ShopScreen} options={navigatorOptions}/>
             <Stack.Screen name="Classement" component={RankScreen} options={navigatorOptions}/>
             <Stack.Screen name="Menu" component={MenuScreen} options={navigatorOptions}/>

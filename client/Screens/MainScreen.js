@@ -18,6 +18,7 @@ import axios from 'axios'
 import url from '../Constants/url'
 
 import CalloutGame from '../Components/CalloutGame'
+import Avatar from '../Components/Avatar'
 
 
 const width = Dimensions.get('window').width
@@ -260,10 +261,8 @@ const MainScreen = (props) => {
                 </View>
 
                 {/* SHARE BUTTON */}
-                <TouchableOpacity style={styles.notifContainer} onPress={() => props.navigation.navigate('Partager')}>
-                    <View style={{backgroundColor:'white',borderRadius:20,padding:3,paddingRight:5}}>
-                        <Entypo name="share" size={22} color="black" />
-                    </View>
+                <TouchableOpacity style={styles.notifContainer} onPress={() => props.navigation.navigate('Profil')}>
+                        <Avatar size={50} userId={userId}/>
                 </TouchableOpacity>
 
                 {/* SHOP BUTTON */}
@@ -394,11 +393,10 @@ const styles = StyleSheet.create({
     },
     notifContainer:{
         position:'absolute',
-        backgroundColor:colors.purple,
         borderRadius:20,
         padding:2,
-        top:45,
-        right:20,
+        top:30,
+        right:15,
         justifyContent:'center',
         alignItems:'center'
     },
