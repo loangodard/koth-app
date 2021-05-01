@@ -1,7 +1,9 @@
-import React, {useState} from 'react'
-import { StyleSheet, Text, View, TouchableOpacity,SafeAreaView, FlatList,ScrollView} from 'react-native'
-
+import React, {useState,useEffect} from 'react'
+import { StyleSheet, Text, View, TouchableOpacity,SafeAreaView, FlatList,ScrollView, ActivityIndicator} from 'react-native'
+import {useSelector} from 'react-redux'
 import { BigHead } from 'react-native-bigheads'
+import axios from 'axios'
+import url from '../Constants/url'
 
 const accessories = [{id:1,item:'none',traduction:'Aucun'},{id:2,item:'roundGlasses',traduction:'Lunettes Rondes'} , {id:3,item:'tinyGlasses',traduction:'Petites Lunettes'},{id:4,item:'shades',traduction:'Lunettes de Soleil'} , {id:5,item:'faceMask',traduction:"Masque"}, {id:6,item:'hoopEarrings',traduction:'Créoles'}]
 const bgColors = [{id:1,item :'blue',traduction:'Bleu'},{id:3,item :'green',traduction:'Vert'},{id:4,item :'red',traduction:'Rouge'}]
@@ -21,7 +23,28 @@ const lipColors = [{id:0,item :'red',traduction:''},{id:1,item :'purple',traduct
 const mouths = [{id:0,item :'grin',traduction:'Sourire'},{id:1,item :'sad',traduction:'Triste'},{id:2,item :'openSmile',traduction:'Rire'},{id:3,item :'lips',traduction:'Lèvres'},{id:4,item :'open',traduction:'Ouverte'},{id:5,item :'serious',traduction:'Sérieux'},{id:6,item :'tongue',traduction:'Langue'},{id:7,item :'piercedTongue',traduction:'Langue percée'},{id:8,item :'vomitingRainbow',traduction:'Arc-en-ciel'}]
 const skinTones = [{id:0,item :'light',traduction:'Claire'},{id:1,item :'yellow',traduction:'Jaune'},{id:2,item :'brown',traduction:'Marron'},{id:3,item :'dark',traduction:'Sombre'},{id:4,item :'red',traduction:'Rouge'},{id:5,item :'black',traduction:'Noire'}]
 const AvatarBuilderScreen = (props) => {
+    useEffect(() => {
+        axios.get(url+'/avatar/'+userId).then(response => {
+            const avatar = response.data.avatar
+            console.log(avatar)
+            setAccessory(avatar.accessory)
+            setBody(avatar.body)
+            setClothing(avatar.clothing)
+            setClothingColor(avatar.clothingColor)
+            setEyebrows(avatar.eyeBrows)
+            setEyes(avatar.eyes)
+            setFacialHair(avatar.facialHair)
+            setHair(avatar.hair)
+            setHairColor(avatar.hairColor)
+            setHatColor(avatar.hatColor)
+            setMouth(avatar.mouth)
+            setSkinTone(avatar.skinTone)
+            setBgColor(avatar.bgColor)
+        })
 
+    }, [])
+
+    const userId = useSelector(state => state.userId)
     const [accessory, setAccessory] = useState("none")
     const [body, setBody] = useState("chest")
     const [bgColor, setBgColor] = useState("green")
@@ -38,43 +61,73 @@ const AvatarBuilderScreen = (props) => {
     const [lipColor, setLipColor] = useState("red")
     const [mouth, setMouth] = useState("serious")
     const [skinTone, setSkinTone] = useState("yellow")
+    const [hasChanged, setHasChanged] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleSave = () => {
+      const avatar = {
+        accessory:accessory,
+        bgColor:bgColor,
+        body:body,
+        clothing:clothing,
+        clothingColor:clothingColor,
+        eyeBrows:eyebrows,
+        eyes:eyes,
+        facialHair:facialHair,
+        hair:hair,
+        hairColor:hairColor,
+        hat:hat,
+        hatColor:hatColor,
+        mouth:mouth,
+        skinTone:skinTone
+      }
+
+      setIsLoading(true)
+      axios.post(url+'/avatar',{
+        avatar:avatar,
+        userId:userId
+      }).then(response => {
+        setIsLoading(false)
+        setHasChanged(false)
+      })
+    }
 
     const caracStyle = { width: 130, height: 50,backgroundColor:'white',borderRadius:60,marginHorizontal:5,marginTop:10,borderColor:'rgb(200,200,200)',borderWidth:2,justifyContent:"center",alignItems:'center' }
 
     const renderList = (caracteristique,hook) => {
       return(
-        <TouchableOpacity style={caracStyle} onPress={() => hook(caracteristique.item)}>
+        <TouchableOpacity style={caracStyle} onPress={() => {hook(caracteristique.item);setHasChanged(true)}}>
           <Text style={{fontWeight:'bold'}}>{caracteristique.traduction}</Text>
         </TouchableOpacity>
       )
     }
 
-
     return (
         <SafeAreaView style={styles.container}>
           <View style={styles.head}>
             <BigHead
-                size={300}
-                accessory={accessory}
-                body={body}
-                bgColor={bgColor}
+                size={250}
+                accessory={accessory||"none"}
+                body={body|| "chest"}
+                bgColor={bgColor||"green"}
                 bgShape={"circle"}
-                clothing={clothing}
-                clothingColor={clothingColor}
-                eyebrows={eyebrows}
-                eyes={eyes}
-                facialHair={facialHair}
+                clothing={clothing || "naked"}
+                clothingColor={clothingColor || "white"}
+                eyebrows={eyebrows || "raised"}
+                eyes={eyes || "normal"}
+                facialHair={facialHair || "stubble"}
                 graphic={"none"}
-                hair={hair}
-                hairColor={hairColor}
-                hat={hat}
-                hatColor={hatColor}
+                hair={hair || "short"}
+                hairColor={hairColor || "brown"}
+                hat={hat || "none"}
+                hatColor={hatColor || "red"}
                 lashes={false}
-                lipColor={lipColor}
-                mouth={mouth}
-                skinTone={skinTone}
+                lipColor={lipColor|| "red"}
+                mouth={mouth || "serious"}
+                skinTone={skinTone || "yellow"}
                 showBackground={true}
               />
+              {hasChanged && <TouchableOpacity onPress={handleSave} style={{borderWidth:2,borderColor:"white",paddingVertical:5,paddingHorizontal:10,borderRadius:10, width:120,alignItems:'center'}}><Text style={{color:"white",fontWeight:"bold"}}>{isLoading ?  <ActivityIndicator/> : "Sauvegarder"}</Text></TouchableOpacity>}
           </View>
 
           <ScrollView style={styles.main}>
@@ -137,13 +190,12 @@ const styles = StyleSheet.create({
         fontSize:15,
       },
       head:{
-        flex:1,
         backgroundColor: 'rgb(21,21,21)',
         alignItems: 'center',
         justifyContent: 'center',
       },
       main:{
-        flex:2,
+        flex:3,
         backgroundColor: 'rgb(21,21,21)',
         width:"100%",
       },

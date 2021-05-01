@@ -191,7 +191,7 @@ const LobbyScreen = ({route,navigation}) => {
                             return(
                             <View style={{flexDirection:'row',flex:1,width:width/2}}>
                                 <View style={{flex:3}}>
-                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.toString()}/>
+                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.toString()} userId={itemData.item._id}/>
                                 </View>
                                 <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
                                     {itemData.item.isReady && <Entypo name="check" size={24} color="green" />}
@@ -208,7 +208,7 @@ const LobbyScreen = ({route,navigation}) => {
                             return(
                             <View style={{flexDirection:'row',flex:1,width:width/2}}>
                                 <View style={{flex:3}}>
-                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.toString()}/>
+                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.toString()} userId={itemData.item._id}/>
                                 </View>
                                 <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
                                     {itemData.item.isReady && <Entypo name="check" size={24} color="green" />}

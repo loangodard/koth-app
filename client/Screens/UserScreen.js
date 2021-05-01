@@ -18,7 +18,7 @@ const UserScreen = (props) => {
                         <Feather name="edit-2" size={22} color="black"/>
                     </TouchableOpacity>
                 </View>
-                <Text style={{color:"white",fontSize:20,fontWeight:'600'}}>@Loan</Text>
+                <Text style={{color:"white",fontSize:20,fontWeight:'600'}}>@user</Text>
             </View>
         </View>
     )

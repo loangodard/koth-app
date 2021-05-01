@@ -58,12 +58,12 @@ const GameScreen = ({route,navigation}) => {
 
     return (
         <View style={styles.container}>
-        <StatusBar backgroundColor="black"/>
+        <StatusBar backgroundColor="rgb(21,21,21)"/>
             <Modal
                 isVisible={showModal}
                 onBackdropPress={() => setShowModal(false)}
             >
-                <View style={{backgroundColor:'black',padding:50,justifyContent:'center',alignItems:'center'}}>
+                <View style={{backgroundColor:'rgb(21,21,21)',padding:50,justifyContent:'center',alignItems:'center'}}>
                     <Text style={{color:"white",fontSize:25,fontWeight:'600',marginBottom:5}}>Qui a gagné ?</Text>
                     <Text style={{color:"white",fontSize:15,fontWeight:'500',marginBottom:45,textAlign:'center'}}>Attention ! Si vous trichez, vous risquez d'être bannis</Text>
 
@@ -91,7 +91,7 @@ const GameScreen = ({route,navigation}) => {
                             return(
                             <View style={{flexDirection:'row',flex:1,width:width/2}}>
                                 <View style={{flex:3}}>
-                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.filter(e => e.zone == zone)[0].elo}/>
+                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.filter(e => e.zone == zone)[0].elo} userId={itemData.item._id}/>
                                 </View>
                             </View>
                             )
@@ -101,7 +101,7 @@ const GameScreen = ({route,navigation}) => {
                             return(
                             <View style={{flexDirection:'row',flex:1,width:width/2}}>
                                 <View style={{flex:3}}>
-                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.filter(e => e.zone == zone)[0].elo}/>
+                                    <Joueur username={itemData.item.pseudo} elo={itemData.item.elos.filter(e => e.zone == zone)[0].elo} userId={itemData.item._id}/>
                                 </View>
                             </View>
                             )

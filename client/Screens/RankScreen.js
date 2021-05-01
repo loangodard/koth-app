@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { FlatList, StyleSheet, Text, View, Dimensions, ActivityIndicator } from 'react-native'
 import { FontAwesome5, Entypo } from '@expo/vector-icons';
+import Avatar from '../Components/Avatar'
 import axios from 'axios'
 import url from '../Constants/url'
 import colors from '../Constants/colors';
@@ -43,31 +44,14 @@ const width = Dimensions.get('window').width
 
 const UserInRank = (props) => {
     let border;
-    if(props.rang == 1){
-        border = {
-            borderColor:'gold',
-            borderWidth:3
-        }
-    }else if(props.rang == 2){
-        border = {
-            borderColor:"#a19d94",
-            borderWidth:2
-        }
-    }else if(props.rang == 3){
-        border = {
-            borderColor:"#cd7f32",
-            borderWidth:1
-        }
-    }
+
     return(
         <View style={{...styles.joueur,...border}}>
             <View style={{justifyContent:'center',marginRight:10}}>
-                {props.rang == 1 &&<FontAwesome5 name="medal" size={20} color="gold"/>}
-                {props.rang == 2 &&<FontAwesome5 name="medal" size={20} color="#a19d94"/>}
-                {props.rang == 3 &&<FontAwesome5 name="medal" size={20} color="#cd7f32"/>}
-                {props.rang > 3 && <Text style={styles.rank}>#{props.rang}</Text>}
+                <Text style={styles.rank}>#{props.rang + 3}</Text>
             </View>
-            <View style={{flex:1}}>
+            <View style={{flex:1,flexDirection:"row",alignItems:'center'}}>
+                <Avatar size={75} userId={props.joueur.id}/>
                 <Text style={{color:"white",fontSize:18 ,fontWeight:'600'}}>{props.joueur.pseudo}</Text>
             </View>
             <View style={{flex:1,alignItems:'flex-end',justifyContent:'center'}}>
@@ -80,17 +64,53 @@ const UserInRank = (props) => {
 const RankScreen = ({navigation,route}) => {
     const [classement, setClassement] = useState([])
     const [isLoading, setIsLoading] = useState(true)
+    const [premier, setPremier] = useState({})
+    const [deuxieme, setDeuxieme] = useState({})
+    const [troisieme, setTroisieme] = useState({})
 
     useEffect(() => {
         navigation.setOptions({ title: route.params.nomZone })
         axios.get(url+'/classement/'+route.params.zoneId).then(classement=>{
-            setClassement(classement.data)
+            let rank = classement.data
+            setPremier(rank.shift())
+            setDeuxieme(rank.shift())
+            setTroisieme(rank.shift())
+            setClassement(rank)
             setIsLoading(false)
+
+            console.log(premier)
+            console.log(deuxieme)
+            console.log(troisieme)
         })
     }, [])
 
     const content = (
             <View style={styles.rankContainer}>
+                <View style={styles.podiumContainer}>
+                    <View style={{flexDirection:'row',justifyContent:'center',alignItems:"center"}}>
+
+                        <View style={{flex:4,alignItems:'center',justifyContent:"center"}}>
+                            <Avatar size={100} userId={deuxieme.id}/>
+                            <Text style={{color:"white",fontWeight:'bold',fontSize:20}}>{deuxieme.pseudo}</Text>
+                            <FontAwesome5 name="medal" size={20} color="#a19d94"/>
+                            <Text style={{color:'white',fontWeight:"600"}}>{deuxieme.elo} <Entypo name="trophy" size={22} color={"gold"} /></Text>
+                        </View>
+
+                        <View style={{flex:5,alignItems:'center',justifyContent:"center"}}>
+                            <Avatar size={140} userId={premier.id}/>
+                            <Text style={{color:"white",fontWeight:'bold',fontSize:20}}>{premier.pseudo}</Text>
+                            <FontAwesome5 name="medal" size={25} color="gold"/>
+                            <Text style={{color:'white',fontWeight:"600"}}>{premier.elo} <Entypo name="trophy" size={22} color={"gold"} /></Text>
+                        </View>
+
+                        <View style={{flex:4,alignItems:'center',justifyContent:"center"}}>
+                            <Avatar size={100} userId={troisieme.id}/>
+                            <Text style={{color:"white",fontWeight:'bold',fontSize:20}}>{troisieme.pseudo}</Text>
+                            <FontAwesome5 name="medal" size={20} color="#cd7f32"/>
+                            <Text style={{color:'white',fontWeight:"600"}}>{troisieme.elo} <Entypo name="trophy" size={22} color={"gold"} /></Text>
+                        </View>
+                    </View>
+                </View>
                 <FlatList data={classement} renderItem={({item,index}) => <UserInRank joueur={item} rang={index+1}/>}/>
             </View>
     )
@@ -139,5 +159,8 @@ const styles = StyleSheet.create({
         padding:3,
         borderRadius:5,
         borderWidth:1
+    },
+    podiumContainer:{
+        height:250
     }
 })

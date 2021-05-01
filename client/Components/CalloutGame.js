@@ -9,10 +9,9 @@ import { Entypo } from '@expo/vector-icons';
 
 import colors from '../Constants/colors'
 import url from '../Constants/url'
+import Avatar from '../Components/Avatar';
 
 const width = Dimensions.get('window').width
-
-const date = new Date("2021-04-05T17:03:24.398+00:00")
 
 const CalloutGame = (props) => {
     const [match, setMatch] = useState({
@@ -29,8 +28,7 @@ const CalloutGame = (props) => {
         <Callout style={styles.container}>
             <View style={{width:width*0.5,padding:10}}>
                 <View style={{marginBottom:10}}>
-                    {match.isGameOver && <Text style={{fontWeight:'700',fontSize:20,textAlign:'center'}}>Match Récent</Text>}
-                    {!match.isGameOver && <Text style={{fontWeight:'700',fontSize:20,textAlign:'center'}}>Match En Cours</Text>}
+                    <Text style={{fontWeight:'700',fontSize:20,textAlign:'center'}}>Match Récent</Text>
                     <Text style={{color:'grey',textAlign:'center'}}>{moment(match.date_debut).fromNow()}</Text>
                 </View>
 
@@ -44,7 +42,8 @@ const CalloutGame = (props) => {
                             }
                         }
                         return(
-                            <View style={{flexDirection:'row',justifyContent:'space-between'}} key={index}>
+                            <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:"center"}} key={index}>
+                                <Avatar size={50} userId={joueur._id}/>
                                 <Text style={{fontWeight:'600'}}>{joueur.pseudo}</Text>
                                 <Text>{joueurElo} <Entypo name="trophy" size={15} color={colors.gold} /></Text>
                             </View>
@@ -62,7 +61,8 @@ const CalloutGame = (props) => {
                             }
                         }
                         return(
-                            <View style={{flexDirection:'row',justifyContent:'space-between'}} key={index}>
+                            <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:"center"}} key={index}>
+                                <Avatar size={50} userId={joueur._id}/>
                                 <Text style={{fontWeight:'600'}}>{joueur.pseudo}</Text>
                                 <Text>{joueurElo} <Entypo name="trophy" size={15} color={colors.gold} /></Text>
                             </View>
