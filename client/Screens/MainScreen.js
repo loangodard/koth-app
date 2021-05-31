@@ -221,11 +221,11 @@ const MainScreen = (props) => {
                         if(deltaDates < uneHeure){
                             opac=1
                         }else if(uneHeure <= deltaDates <3*uneHeure){
-                            opac=0.8
+                            opac=0.8/2
                         }else if(3*uneHeure <= deltaDates < 10*uneHeure){
-                            opac=0.5
+                            opac=0.5/2
                         }else{
-                            opac=0.2
+                            opac=0.2/2
                         }
                         //Rouge si le match a moins de 30 minutes
                         const color = (deltaDates < uneHeure / 2) ? "red" : 'black'

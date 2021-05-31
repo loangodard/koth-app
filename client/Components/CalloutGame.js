@@ -41,6 +41,7 @@ const CalloutGame = (props) => {
                                 joueurElo = joueur.elos.find(e => e.zone == zone._id).elo
                             }
                         }
+                        console.log('CALLOUTGAME JOUEUR : '+joueur._id)
                         return(
                             <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:"center"}} key={index}>
                                 <Avatar size={50} userId={joueur._id}/>
@@ -60,6 +61,7 @@ const CalloutGame = (props) => {
                                 joueurElo = joueur.elos.find(e => e.zone == zone._id).elo
                             }
                         }
+                        console.log('CALLOUTGAME JOUEUR : '+joueur._id)
                         return(
                             <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:"center"}} key={index}>
                                 <Avatar size={50} userId={joueur._id}/>

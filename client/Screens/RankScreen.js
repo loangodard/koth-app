@@ -77,10 +77,6 @@ const RankScreen = ({navigation,route}) => {
             setTroisieme(rank.shift())
             setClassement(rank)
             setIsLoading(false)
-
-            console.log(premier)
-            console.log(deuxieme)
-            console.log(troisieme)
         })
     }, [])
 
